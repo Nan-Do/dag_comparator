@@ -22,9 +22,10 @@ def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
 # node in a graph.
 # TODO: Currently a recursive version, create the iterative version
 def BuildSuccessors(node, graph, antecessors, successors):
-    successors[node] = set()
+    successors[node] = tuple()
     for antecessor in antecessors:
-        successors[antecessor].add(node)
+        if antecessor not in successors[node]:
+            successors[antecessor] += (node,)
     
     next_antecessors = antecessors.union(node)
     for child in graph[node]:
@@ -41,28 +42,28 @@ def BuildSuccessors(node, graph, antecessors, successors):
 #      (For that we call the auxiliary function BuildSuccessors)
 #    - Adding the current node as a leaf to the previous computed subgraphs
 def GenerateSubGraphsDagWithRoot(root, graph):
-    solutions = list()
+    solutions = set()
     successors = dict()
     
     BuildSuccessors(root, graph, set(), successors)
 
-    frontier = [(root, set())]
+    frontier = [(root, tuple())]
     while len(frontier):
         node, antecessors = frontier.pop()
-        next_antecessors = antecessors.union(node)
+        next_antecessors = antecessors + (node,)
 
-        # Append the current node
-        solutions.append(set(node))
+        # Append the current node as a subgraph
+        solutions.add((node,))
         # Append the whole subgraph starting from the current node
         # If we are in a leaf we shouldn't add the node as is the 
         # same as the previous case
         if len(graph[node]):
-            solutions.append(successors[node].union([node]))
+            solutions.add(tuple(successors[node]) + (node,))
         # Append the graph including the antecessors until the current node
         # If antecessors is empty we are in the root and that would append
         # the root node twice
         if len(antecessors):
-            solutions.append(next_antecessors)
+            solutions.add(next_antecessors)
             
 
         for child in graph[node]:
@@ -78,7 +79,6 @@ graph = {
     "e": set("")
 }
 
-#import pudb; pudb.set_trace()
 root = "a"
 successors = dict()
 #BuildSuccessors(root, graph, set(), successors)
