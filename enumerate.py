@@ -34,6 +34,9 @@ def StringifyGraph(node, graph, variables=""):
     return graph_string
 
 
+# General and  naive function to generate all the possible subgraphs of a given
+# graph. 
+# It is used as a reference by now
 def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
     candidates = notYetConsidered.copy()
 
