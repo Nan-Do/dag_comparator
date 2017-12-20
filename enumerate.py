@@ -1,3 +1,39 @@
+from collections import defaultdict
+
+# This function creates a s expression given a graph specified as 
+# dictionary of adyacency lists.
+# Variables represents the positions of the graph in which we are interested
+# in putting variables.
+# Ex Input: 
+#        a
+#       / \
+#       b c
+#       | |
+#       d f
+# Output:
+#    ( a ( b d ) ( c f ) )
+def StringifyGraph(node, graph, variables=""):
+    graph_string = ""
+
+    # Check if the current node is marked as variable 
+    if node in variables:
+        graph_string = "?x" + str(variables.index(node)) + "|"
+        if len(graph[node]):
+            graph_string += node
+        return graph_string
+
+    if len(graph[node]):
+        graph_string = "( " + node + " "
+        children = []
+        for child in graph[node]:
+            children.append(StringifyGraph(child, graph, variables))
+        graph_string += " ".join(children) + " )"
+    else:
+        graph_string = node
+
+    return graph_string
+
+
 def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
     candidates = notYetConsidered.copy()
 
@@ -22,9 +58,8 @@ def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
 # node in a graph.
 # TODO: Currently a recursive version, create the iterative version
 def BuildSuccessors(node, graph, antecessors, successors):
-    successors[node] = tuple()
     for antecessor in antecessors:
-        if antecessor not in successors[node]:
+        if node not in successors[antecessor]:
             successors[antecessor] += (node,)
     
     next_antecessors = antecessors.union(node)
@@ -43,7 +78,7 @@ def BuildSuccessors(node, graph, antecessors, successors):
 #    - Adding the current node as a leaf to the previous computed subgraphs
 def GenerateSubGraphsDagWithRoot(root, graph):
     solutions = set()
-    successors = dict()
+    successors = defaultdict(tuple)
     
     BuildSuccessors(root, graph, set(), successors)
 
@@ -59,11 +94,15 @@ def GenerateSubGraphsDagWithRoot(root, graph):
         # same as the previous case
         if len(graph[node]):
             solutions.add(tuple(successors[node]) + (node,))
+            solutions.add(tuple(graph[node]) + (node,))
         # Append the graph including the antecessors until the current node
         # If antecessors is empty we are in the root and that would append
         # the root node twice
         if len(antecessors):
             solutions.add(next_antecessors)
+
+        if len(graph[node]) and len(antecessors):
+            solutions.add(tuple(next_antecessors + successors[node]))
             
 
         for child in graph[node]:
@@ -72,16 +111,22 @@ def GenerateSubGraphsDagWithRoot(root, graph):
     return solutions
 
 graph = {
-    "a": set("bcd"),
-    "b": set("d"),
-    "c": set("e"),
-    "d": set(""),
-    "e": set("")
+    "a": tuple("bc"),
+    "b": tuple("d"),
+    "c": tuple("f"),
+    "d": tuple(""),
+    "f": tuple(""),
+    # "c": tuple("e"),
+    # "d": tuple("h"),
+    # "e": tuple(""),
+    # "f": tuple(""),
+    # "h": tuple("")
 }
 
 root = "a"
-successors = dict()
+print StringifyGraph(root, graph, "a")
+#successors = defaultdict(tuple)
 #BuildSuccessors(root, graph, set(), successors)
 #print successors
-print GenerateSubGraphsDagWithRoot(root, graph)
+print map(sorted, GenerateSubGraphsDagWithRoot(root, graph))
 
