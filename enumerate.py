@@ -12,7 +12,7 @@ from collections import defaultdict
 #       d f
 # Output:
 #    ( a ( b d ) ( c f ) )
-def StringifyGraph(node, graph, variables=""):
+def stringifyGraph(node, graph, variables=""):
     graph_string = ""
 
     # Check if the current node is marked as variable 
@@ -26,7 +26,7 @@ def StringifyGraph(node, graph, variables=""):
         graph_string = "( " + node + " "
         children = []
         for child in graph[node]:
-            children.append(StringifyGraph(child, graph, variables))
+            children.append(stringifyGraph(child, graph, variables))
         graph_string += " ".join(children) + " )"
     else:
         graph_string = node
@@ -35,9 +35,8 @@ def StringifyGraph(node, graph, variables=""):
 
 
 # General and  naive function to generate all the possible subgraphs of a given
-# graph. 
-# It is used as a reference by now
-def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
+# graph. used as a reference by now
+def generateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
     candidates = notYetConsidered.copy()
 
     if len(soFar) > 0:
@@ -48,11 +47,11 @@ def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
     else:
         for v in candidates:
             newNotYetConsidered = notYetConsidered.difference([v])
-            GenerateSubGraphs(newNotYetConsidered.copy(),
+            generateSubGraphs(newNotYetConsidered.copy(),
                               soFar.copy(),
                               graph[v],
                               a)
-            GenerateSubGraphs(newNotYetConsidered.copy(),
+            generateSubGraphs(newNotYetConsidered.copy(),
                               soFar.union([v]),
                               graph[v],
                               a)
@@ -60,14 +59,14 @@ def GenerateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
 # Auxiliary function that compute all the possible successors of a
 # node in a graph.
 # TODO: Currently a recursive version, create the iterative version
-def BuildSuccessors(node, graph, antecessors, successors):
+def buildSuccessors(node, graph, antecessors, successors):
     for antecessor in antecessors:
         if node not in successors[antecessor]:
             successors[antecessor] += (node,)
     
     next_antecessors = antecessors.union(node)
     for child in graph[node]:
-        BuildSuccessors(child, graph, next_antecessors, successors)
+        buildSuccessors(child, graph, next_antecessors, successors)
 
 
 # This function generates all the possible subgraphs given a directed
@@ -79,11 +78,11 @@ def BuildSuccessors(node, graph, antecessors, successors):
 #    - Using the whole subgraph reachable from the current node
 #      (For that we call the auxiliary function BuildSuccessors)
 #    - Adding the current node as a leaf to the previous computed subgraphs
-def GenerateSubGraphsDagWithRoot(root, graph):
+def generateSubGraphsDagWithRoot(root, graph):
     solutions = set()
     successors = defaultdict(tuple)
     
-    BuildSuccessors(root, graph, set(), successors)
+    buildSuccessors(root, graph, set(), successors)
 
     frontier = [(root, tuple())]
     while len(frontier):
@@ -127,9 +126,9 @@ graph = {
 }
 
 root = "a"
-print StringifyGraph(root, graph, "a")
+print stringifyGraph(root, graph, "a")
 #successors = defaultdict(tuple)
 #BuildSuccessors(root, graph, set(), successors)
 #print successors
-print map(sorted, GenerateSubGraphsDagWithRoot(root, graph))
+print map(sorted, generateSubGraphsDagWithRoot(root, graph))
 
