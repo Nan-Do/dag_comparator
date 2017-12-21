@@ -1,6 +1,7 @@
 from collections import defaultdict
 from itertools import combinations
 
+
 # This function creates a s expression given a graph specified as
 # dictionary of adyacency lists.
 # Variables represents the positions of the graph in which we are interested
@@ -59,7 +60,7 @@ def generateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
 
 
 # Auxiliary function that compute all the possible successors of a
-# node in a graph. Also does the  same recursively for all its  
+# node in a graph. Also does the  same recursively for all its
 # descendants.
 # TODO: Currently a recursive version, create the iterative version
 def buildSuccessors(node, graph, antecessors, successors):
@@ -139,8 +140,11 @@ def generateSubGraphsDagWithRoot(root, graph):
 #    [c, e]
 #    [d]
 #    [e]
+# TODO: Add a paramater to specify a maximum depth
 def generateSourceSubgraphs(root, graph):
-    solutions = list()
+    # We need a set as in a DAG one node can be reached by more than one path
+    # and therefore there could be duplicates, using a set avoid that.
+    solutions = set()
     successors = defaultdict(tuple)
 
     buildSuccessors(root, graph, set(), successors)
@@ -148,10 +152,47 @@ def generateSourceSubgraphs(root, graph):
     frontier = [root]
     while len(frontier):
         node = frontier.pop()
-        solutions.append(((node,) + successors[node], node))
+        solutions.add(((node,) + successors[node], node))
 
         for child in graph[node]:
             frontier.append(child)
+
+    return solutions
+
+
+def generateVariableCombinations(root,
+                                 graph_nodes,
+                                 graph,
+                                 total_number_of_variables):
+    nodes = set(graph_nodes).difference((root,))
+    successors = defaultdict(tuple)
+    solutions = list()
+
+    buildSuccessors(root, graph, set(), successors)
+
+    frontier = [(nodes, 0, ())]
+    while len(frontier):
+        current_nodes, number_of_variables, current_solution =\
+                frontier.pop()
+
+        # Check if the solution actually contains some elements
+        # As the first solution we add is the empty set we need to
+        # check it in order to not add it
+        if len(current_solution):
+            solutions.append(current_solution)
+
+        # We don't want to specify more variables than the ones that
+        # we specify on the function parameter
+        if number_of_variables < total_number_of_variables:
+            for node in current_nodes:
+                # For the new solution remove  the descendants of the node
+                # that we are using as a location for the variable.
+                # Increase the  number of assigned variables by 1 and
+                # Add the node to current temporary solutions
+                frontier.append((current_nodes.difference(successors[node] +
+                                                          (node,)),
+                                 number_of_variables + 1,
+                                 current_solution + (node,)))
 
     return solutions
 
@@ -168,6 +209,7 @@ def generateVariableMappings(root, graph):
 
 
 if __name__ == '__main__':
+    root = "a"
     graph = {
         "a": tuple("bcd"),
         "b": tuple("cd"),
@@ -181,13 +223,12 @@ if __name__ == '__main__':
         # "h": tuple("")
     }
 
-    root = "a"
-    #import pudb; pudb.set_trace()
-    #print generateSourceSubgraphs(root, graph)
-    generateVariableMappings(root, graph)
-    #print stringifyGraph(root, graph, "a")
-    #successors = defaultdict(tuple)
-    #BuildSuccessors(root, graph, set(), successors)
-    #print successors
-    #print map(sorted, generateSubGraphsDagWithRoot(root, graph))
-
+    # import pudb; pudb.set_trace()
+    print generateVariableCombinations(root, graph.iterkeys(), graph, 2) 
+    # print generateSourceSubgraphs(root, graph)
+    # generateVariableMappings(root, graph)
+    # print stringifyGraph(root, graph, "a")
+    # successors = defaultdict(tuple)
+    # BuildSuccessors(root, graph, set(), successors)
+    # print successors
+    # print map(sorted, generateSubGraphsDagWithRoot(root, graph))
