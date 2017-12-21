@@ -1,10 +1,11 @@
 from collections import defaultdict
+from itertools import combinations
 
-# This function creates a s expression given a graph specified as 
+# This function creates a s expression given a graph specified as
 # dictionary of adyacency lists.
 # Variables represents the positions of the graph in which we are interested
 # in putting variables.
-# Ex Input: 
+# Ex Input:
 #        a
 #       / \
 #       b c
@@ -15,7 +16,7 @@ from collections import defaultdict
 def stringifyGraph(node, graph, variables=""):
     graph_string = ""
 
-    # Check if the current node is marked as variable 
+    # Check if the current node is marked as variable
     if node in variables:
         graph_string = "?x" + str(variables.index(node)) + "|"
         if len(graph[node]):
@@ -50,20 +51,22 @@ def generateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
             generateSubGraphs(newNotYetConsidered.copy(),
                               soFar.copy(),
                               graph[v],
-                              a)
+                              answers)
             generateSubGraphs(newNotYetConsidered.copy(),
                               soFar.union([v]),
                               graph[v],
-                              a)
+                              answers)
+
 
 # Auxiliary function that compute all the possible successors of a
-# node in a graph.
+# node in a graph. Also does the  same recursively for all its  
+# descendants.
 # TODO: Currently a recursive version, create the iterative version
 def buildSuccessors(node, graph, antecessors, successors):
     for antecessor in antecessors:
         if node not in successors[antecessor]:
             successors[antecessor] += (node,)
-    
+
     next_antecessors = antecessors.union(node)
     for child in graph[node]:
         buildSuccessors(child, graph, next_antecessors, successors)
@@ -81,7 +84,7 @@ def buildSuccessors(node, graph, antecessors, successors):
 def generateSubGraphsDagWithRoot(root, graph):
     solutions = set()
     successors = defaultdict(tuple)
-    
+
     buildSuccessors(root, graph, set(), successors)
 
     frontier = [(root, tuple())]
@@ -92,7 +95,7 @@ def generateSubGraphsDagWithRoot(root, graph):
         # Append the current node as a subgraph
         solutions.add((node,))
         # Append the whole subgraph starting from the current node
-        # If we are in a leaf we shouldn't add the node as is the 
+        # If we are in a leaf we shouldn't add the node as is the
         # same as the previous case
         if len(graph[node]):
             solutions.add(tuple(successors[node]) + (node,))
@@ -105,30 +108,86 @@ def generateSubGraphsDagWithRoot(root, graph):
 
         if len(graph[node]) and len(antecessors):
             solutions.add(tuple(next_antecessors + successors[node]))
-            
 
         for child in graph[node]:
             frontier.append((child, next_antecessors))
 
     return solutions
 
-graph = {
-    "a": tuple("bc"),
-    "b": tuple("d"),
-    "c": tuple("f"),
-    "d": tuple(""),
-    "f": tuple(""),
-    # "c": tuple("e"),
-    # "d": tuple("h"),
-    # "e": tuple(""),
-    # "f": tuple(""),
-    # "h": tuple("")
-}
 
-root = "a"
-print stringifyGraph(root, graph, "a")
-#successors = defaultdict(tuple)
-#BuildSuccessors(root, graph, set(), successors)
-#print successors
-print map(sorted, generateSubGraphsDagWithRoot(root, graph))
+# This function generates all the source subgraphs
+# required to put variables for DAGS. As input it takes a graph defined as a
+# dict of adyacency lists and a root node. As an output it generates tuples
+# with the nodes of the subgraphs. The set of source subgraphs is the minimum
+# set of subgraphs we require in order to generate all the subgraphs with
+# variables. This means that is a subgraphs is subsumed into another one,
+# for example [a, b, d] and [a, b], and we produce both, at the moment of
+# generating the subgraphs with variables we will have duplicates. The
+# source graphs for DAGS are formed by the complete graph originated by
+# the root node and the subgraphs formed by its children without counting
+# the leafs. It means adding the whole graph depending of the root and
+# processing its children in the same way.
+# Ex:
+#        a
+#       / \
+#       b c
+#       | |
+#       d e
+# Returns:
+#    [a, b, c, d, e]
+#    [b, d]
+#    [c, e]
+#    [d]
+#    [e]
+def generateSourceSubgraphs(root, graph):
+    solutions = list()
+    successors = defaultdict(tuple)
+
+    buildSuccessors(root, graph, set(), successors)
+
+    frontier = [root]
+    while len(frontier):
+        node = frontier.pop()
+        solutions.append(((node,) + successors[node], node))
+
+        for child in graph[node]:
+            frontier.append(child)
+
+    return solutions
+
+
+def generateVariableMappings(root, graph):
+    source_subgraphs = generateSourceSubgraphs(root, graph)
+
+    for (source_subgraph, source_root) in source_subgraphs:
+        for combination in combinations(source_subgraph, 1):
+            if combination == (source_root,):
+                continue
+
+            print stringifyGraph(source_root, graph, combination)
+
+
+if __name__ == '__main__':
+    graph = {
+        "a": tuple("bcd"),
+        "b": tuple("cd"),
+        "c": tuple("f"),
+        "d": tuple(""),
+        "f": tuple(""),
+        # "c": tuple("e"),
+        # "d": tuple("h"),
+        # "e": tuple(""),
+        # "f": tuple(""),
+        # "h": tuple("")
+    }
+
+    root = "a"
+    #import pudb; pudb.set_trace()
+    #print generateSourceSubgraphs(root, graph)
+    generateVariableMappings(root, graph)
+    #print stringifyGraph(root, graph, "a")
+    #successors = defaultdict(tuple)
+    #BuildSuccessors(root, graph, set(), successors)
+    #print successors
+    #print map(sorted, generateSubGraphsDagWithRoot(root, graph))
 
