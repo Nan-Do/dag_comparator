@@ -214,13 +214,17 @@ def getSelectableNodes(available_nodes, root, graph):
     return reachable
 
 
+# This function computes all the valid variable positions for a given graph.
+# As input it takes the root node of the graph. The DAG graph and the total
+# number of variables to set. As an output it returns a list of tuples, each
+# tuple is a sequence of nodes, each one representing a valid position for a
+# variable.
 def _generateVariableCombinations(root,
-                                  graph_variables,
                                   graph,
                                   total_number_of_variables):
     solutions = list()
 
-    frontier = [(set(graph_variables).difference(root), root, tuple(), 0)]
+    frontier = [(set(graph.iterkeys()).difference(root), root, tuple(), 0)]
     while frontier:
         selectable, father, variables, number_of_variables = frontier.pop()
 
@@ -269,9 +273,9 @@ if __name__ == '__main__':
         # "h": tuple("")
     }
 
-    import pudb; pudb.set_trace()
+    # import pudb; pudb.set_trace()
     # print getSelectableNodes("bdf", root, graph)
-    print _generateVariableCombinations(root, graph.iterkeys(), graph, 3)
+    print _generateVariableCombinations(root, graph, 3)
     # print generateSourceSubgraphs(root, graph)
     # generateVariableMappings(root, graph)
     # print stringifyGraph(root, graph, "a")
