@@ -116,18 +116,19 @@ def generateSubGraphsDagWithRoot(root, graph):
     return solutions
 
 
-# This function generates all the source subgraphs
-# required to put variables for DAGS. As input it takes a graph defined as a
-# dict of adyacency lists and a root node. As an output it generates tuples
-# with the nodes of the subgraphs. The set of source subgraphs is the minimum
-# set of subgraphs we require in order to generate all the subgraphs with
-# variables. This means that is a subgraphs is subsumed into another one,
-# for example [a, b, d] and [a, b], and we produce both, at the moment of
-# generating the subgraphs with variables we will have duplicates. The
-# source graphs for DAGS are formed by the complete graph originated by
-# the root node and the subgraphs formed by its children without counting
-# the leafs. It means adding the whole graph depending of the root and
-# processing its children in the same way.
+# This function generates all the source subgraphs required to put variables
+# for DAGS. As input it takes a graph defined as a dictionary of adyacency
+# lists and a root node. As an output it generates tuples of nodes, this
+# tuples of nodes represent the the source subgraphs, the edges are the same
+# as in the original graph so we don't need to store them. The set
+# of source subgraphs is the minimum set of subgraphs we require in order to
+# generate all the subgraphs with variables. This means that is a subgraphs
+# is subsumed into another one, for example [a, b, d] and [a, b], and we
+# produce both, at the moment of generating the subgraphs with variables we
+# will have duplicates. The source graphs for DAGS are formed by the complete
+# graph originated by the root node and the subgraphs formed by its children
+# without counting the leafs. It means adding the whole graph depending of the
+# root and processing its children in the same way.
 # Ex:
 #        a
 #       / \
@@ -197,6 +198,51 @@ def generateVariableCombinations(root,
     return solutions
 
 
+def getSelectableNodes(available_nodes, root, graph):
+    reachable = set()
+
+    frontier = list(graph[root])
+    while frontier:
+        node = frontier.pop()
+
+        if node not in available_nodes:
+            continue
+
+        reachable.add(node)
+        frontier.extend(graph[node])
+
+    return reachable
+
+
+def _generateVariableCombinations(root,
+                                  graph_variables,
+                                  graph,
+                                  total_number_of_variables):
+    solutions = list()
+
+    frontier = [(set(graph_variables).difference(root), root, tuple(), 0)]
+    while frontier:
+        selectable, father, variables, number_of_variables = frontier.pop()
+
+        if number_of_variables < total_number_of_variables:
+            for node in selectable:
+                new_selectable = getSelectableNodes(selectable.difference(node),
+                                                    root,
+                                                    graph)
+                solution = variables + (node,)
+                solutions.append(solution)
+
+                if not len(new_selectable) or node not in graph[father]:
+                    continue
+
+                frontier.append((new_selectable,
+                                 father,
+                                 solution,
+                                 number_of_variables + 1))
+
+    return solutions
+
+
 def generateVariableMappings(root, graph):
     source_subgraphs = generateSourceSubgraphs(root, graph)
 
@@ -223,8 +269,9 @@ if __name__ == '__main__':
         # "h": tuple("")
     }
 
-    # import pudb; pudb.set_trace()
-    print generateVariableCombinations(root, graph.iterkeys(), graph, 2) 
+    import pudb; pudb.set_trace()
+    # print getSelectableNodes("bdf", root, graph)
+    print _generateVariableCombinations(root, graph.iterkeys(), graph, 3)
     # print generateSourceSubgraphs(root, graph)
     # generateVariableMappings(root, graph)
     # print stringifyGraph(root, graph, "a")
