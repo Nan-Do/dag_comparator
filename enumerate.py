@@ -161,10 +161,13 @@ def generateSourceSubgraphs(root, graph):
     return solutions
 
 
-def generateVariableCombinations(root,
-                                 graph_nodes,
-                                 graph,
-                                 total_number_of_variables):
+# Old function not used anymore. 
+# This function uses a different model of recursion that not as
+# accurate.
+def _generateVariableCombinations(root,
+                                  graph_nodes,
+                                  graph,
+                                  total_number_of_variables):
     nodes = set(graph_nodes).difference((root,))
     successors = defaultdict(tuple)
     solutions = list()
@@ -227,10 +230,10 @@ def getSelectableNodes(available_nodes, root, graph):
 # nodes that we will consider.  This allows us to consider subgraphs using
 # only a set of nodes to represent it, in that case the graph must be the
 # complete graph.
-def _generateVariableCombinations(root,
-                                  graph,
-                                  total_number_of_variables,
-                                  initial_nodes=None):
+def generateVariableCombinations(root,
+                                 graph,
+                                 total_number_of_variables,
+                                 initial_nodes=None):
     solutions = list()
 
     if initial_nodes is None:
@@ -298,7 +301,7 @@ if __name__ == '__main__':
 
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("bdf", root, graph)
-    print _generateVariableCombinations(root, graph, 3)
+    print generateVariableCombinations(root, graph, 3)
     # print generateSourceSubgraphs(root, graph)
     # generateVariableMappings(root, graph)
     # print stringifyGraph(root, graph, "a")
