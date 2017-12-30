@@ -198,6 +198,10 @@ def generateVariableCombinations(root,
     return solutions
 
 
+# This functions computes all the possible paths from the given root
+# using only the available nodes.
+# This is an auxiliary function to compute all the valid positions
+# in which we can put a variable.
 def getSelectableNodes(available_nodes, root, graph):
     reachable = set()
 
@@ -219,30 +223,49 @@ def getSelectableNodes(available_nodes, root, graph):
 # number of variables to set. As an output it returns a list of tuples, each
 # tuple is a sequence of nodes, each one representing a valid position for a
 # variable.
+# initial_nodes is an optional parameter that represent the initial set of
+# nodes that we will consider.  This allows us to consider subgraphs using
+# only a set of nodes to represent it, in that case the graph must be the
+# complete graph.
 def _generateVariableCombinations(root,
                                   graph,
-                                  total_number_of_variables):
+                                  total_number_of_variables,
+                                  initial_nodes=None):
     solutions = list()
 
-    frontier = [(set(graph.iterkeys()).difference(root), root, tuple(), 0)]
-    while frontier:
-        selectable, father, variables, number_of_variables = frontier.pop()
+    if initial_nodes is None:
+        initial_nodes = set(graph.iterkeys())
+    else:
+        initial_nodes = set(initial_nodes)
 
-        if number_of_variables < total_number_of_variables:
+    # The frontier is a tuple of 3 elements as follows:
+    #  A set of nodes representing valid positions for the variables.
+    #  A node that represents the father of the last processed node.
+    #  A tuple representing where the variables have been set for the
+    #  current configuration.
+    frontier = [(initial_nodes.difference(root), root, tuple())]
+    while frontier:
+        selectable, father, variables = frontier.pop()
+
+        if len(variables) < total_number_of_variables:
             for node in selectable:
+                # Get the nodes in which we can put a variable
                 new_selectable = getSelectableNodes(selectable.difference(node),
                                                     root,
                                                     graph)
                 solution = variables + (node,)
                 solutions.append(solution)
 
+                # If we don't have any selectable node or the current node is
+                # not a direct children of the previous father do not process
+                # it. If we don't stop the recursion by controlling the father
+                # we get incorrect solutions.
                 if not len(new_selectable) or node not in graph[father]:
                     continue
 
                 frontier.append((new_selectable,
                                  father,
-                                 solution,
-                                 number_of_variables + 1))
+                                 solution))
 
     return solutions
 
