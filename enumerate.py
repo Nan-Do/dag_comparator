@@ -161,7 +161,7 @@ def generateSourceSubgraphs(root, graph):
     return solutions
 
 
-# Old function not used anymore. 
+# Old function not used anymore.
 # This function uses a different model of recursion that not as
 # accurate.
 def _generateVariableCombinations(root,
@@ -201,10 +201,19 @@ def _generateVariableCombinations(root,
     return solutions
 
 
-# This functions computes all the possible paths from the given root
-# using only the available nodes.
-# This is an auxiliary function to compute all the valid positions
+# This functions computes all the possible paths of the graph starting from
+# the root using only the nodes in available nodes and returns a set with the
+# reachable nodes.
+# Auxiliary function used to compute all the valid positions
 # in which we can put a variable.
+# Ex:
+#    ---a
+#   |  / \
+#   |  b-c
+#   |  | |
+#    --d e
+# Available nodes: "cde"
+# Output: set(['d', 'e', 'c'])
 def getSelectableNodes(available_nodes, root, graph):
     reachable = set()
 
@@ -234,7 +243,18 @@ def generateVariableCombinations(root,
                                  graph,
                                  total_number_of_variables,
                                  initial_nodes=None):
-    solutions = list()
+    solutions = set()
+
+    # Errors
+    # Empty graph
+    if len(graph) == 0:
+        raise ValueError("Provided graph is empty")
+    # Incorrect number of variables
+    if total_number_of_variables <= 0:
+        raise ValueError("Incorrect number of variables to assign")
+    # Root not belonging to the graph
+    if root not in graph:
+        raise ValueError("The root does not belong to the graph")
 
     if initial_nodes is None:
         initial_nodes = set(graph.iterkeys())
@@ -257,7 +277,10 @@ def generateVariableCombinations(root,
                                                     root,
                                                     graph)
                 solution = variables + (node,)
-                solutions.append(solution)
+                # To store all the possible permutations and not just a
+                # combination change solutions to a list and  do not sort the
+                # tuple
+                solutions.add(tuple(sorted(solution)))
 
                 # If we don't have any selectable node or the current node is
                 # not a direct children of the previous father do not process
@@ -289,9 +312,9 @@ if __name__ == '__main__':
     graph = {
         "a": tuple("bcd"),
         "b": tuple("cd"),
-        "c": tuple("f"),
+        "c": tuple("e"),
         "d": tuple(""),
-        "f": tuple(""),
+        "e": tuple(""),
         # "c": tuple("e"),
         # "d": tuple("h"),
         # "e": tuple(""),
@@ -300,7 +323,7 @@ if __name__ == '__main__':
     }
 
     # import pudb; pudb.set_trace()
-    # print getSelectableNodes("bdf", root, graph)
+    # print getSelectableNodes("ced", root, graph)
     print generateVariableCombinations(root, graph, 3)
     # print generateSourceSubgraphs(root, graph)
     # generateVariableMappings(root, graph)
