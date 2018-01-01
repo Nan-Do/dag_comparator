@@ -1,5 +1,4 @@
 from collections import defaultdict
-from itertools import combinations
 
 
 # This function creates a s expression given a graph specified as
@@ -37,7 +36,7 @@ def stringifyGraph(node, graph, variables=""):
 
 
 # General and  naive function to generate all the possible subgraphs of a given
-# graph. used as a reference by now
+# graph. Used as a reference by now
 def generateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
     candidates = notYetConsidered.copy()
 
@@ -296,14 +295,21 @@ def generateVariableCombinations(root,
     return solutions
 
 
-def generateVariableMappings(root, graph):
+def generateVariableMappings(root, graph, number_of_variables):
+    # Get the source subgraphs
     source_subgraphs = generateSourceSubgraphs(root, graph)
 
+    # For each subgraph get all valid combination of variables that we
+    # can set up to number_of_variables
     for (source_subgraph, source_root) in source_subgraphs:
-        for combination in combinations(source_subgraph, 1):
-            if combination == (source_root,):
-                continue
-
+        print source_subgraph, source_root
+        # So far if the graph is composed by just one node it doesn't return
+        # anything
+        for combination in generateVariableCombinations(source_root,
+                                                        graph,
+                                                        number_of_variables,
+                                                        source_subgraph):
+            # So far print the string version of the graph
             print stringifyGraph(source_root, graph, combination)
 
 
@@ -324,9 +330,9 @@ if __name__ == '__main__':
 
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)
-    print generateVariableCombinations(root, graph, 3)
+    # print generateVariableCombinations(root, graph, 3)
     # print generateSourceSubgraphs(root, graph)
-    # generateVariableMappings(root, graph)
+    generateVariableMappings(root, graph, 1)
     # print stringifyGraph(root, graph, "a")
     # successors = defaultdict(tuple)
     # BuildSuccessors(root, graph, set(), successors)
