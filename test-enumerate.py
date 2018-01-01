@@ -86,16 +86,23 @@ class testGenerateVariableCombinations(unittest.TestCase):
 
     def test_Set1VariableGraph2(self):
         valid_solution = set([('b',), ('c',)])
-        solution = generateVariableCombinations(self.root_1, self.graph_2, 1)
+        solution = generateVariableCombinations(self.root_2, self.graph_2, 1)
 
         self.assertSetEqual(valid_solution, solution)
 
     def test_Set2VariableGraph2(self):
         valid_solution = set([('b',), ('c',), ('b', 'c')])
-        solution = generateVariableCombinations(self.root_1, self.graph_2, 2)
+        solution = generateVariableCombinations(self.root_2, self.graph_2, 2)
 
         self.assertSetEqual(valid_solution, solution)
 
+    def test_Set3VariableGraph2(self):
+        valid_solution = generateVariableCombinations(self.root_2,
+                                                      self.graph_2,
+                                                      2)
+        solution = generateVariableCombinations(self.root_2, self.graph_2, 3)
+
+        self.assertSetEqual(valid_solution, solution)
 
 if __name__ == '__main__':
     unittest.main()
