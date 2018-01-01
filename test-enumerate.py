@@ -22,6 +22,9 @@ class testGenerateVariableCombinations(unittest.TestCase):
         }
 
         # Trivial example
+        #       a
+        #      / \
+        #      b c
         self.root_2 = "a"
         self.graph_2 = {
             "a": tuple("bc"),
@@ -103,6 +106,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
         solution = generateVariableCombinations(self.root_2, self.graph_2, 3)
 
         self.assertSetEqual(valid_solution, solution)
+
 
 if __name__ == '__main__':
     unittest.main()
