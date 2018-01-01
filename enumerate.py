@@ -278,7 +278,7 @@ def generateVariableCombinations(root,
                                                     graph)
                 solution = variables + (node,)
                 # To store all the possible permutations and not just a
-                # canonical combination change solutions to a list and 
+                # canonical combination change solutions to a list and
                 # do not sort the tuple
                 solutions.add(tuple(sorted(solution)))
 
