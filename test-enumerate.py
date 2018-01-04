@@ -87,6 +87,32 @@ class testGenerateVariableCombinations(unittest.TestCase):
 
         self.assertSetEqual(valid_solution, solution)
 
+    # These tests check that we don't generate a solution that contains
+    # more variables than the ones we specified on the parameter list
+    def test_Set1VariableDoesntGenerate2orMoreVariablesGraph1(self):
+        num_variables = 1
+        solution = generateVariableCombinations(self.root_1,
+                                                self.graph_1,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
+
+    def test_Set2VariablesDoesntGenerate3orMoreVariablesGraph1(self):
+        num_variables = 2
+        solution = generateVariableCombinations(self.root_1,
+                                                self.graph_1,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
+
+    def test_Set3VariablesDoesntGenerate4orMoreVariablesGraph1(self):
+        num_variables = 3
+        solution = generateVariableCombinations(self.root_1,
+                                                self.graph_1,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
+
     def test_Set1VariableGraph2(self):
         valid_solution = set([('b',), ('c',)])
         solution = generateVariableCombinations(self.root_2, self.graph_2, 1)
@@ -107,6 +133,31 @@ class testGenerateVariableCombinations(unittest.TestCase):
 
         self.assertSetEqual(valid_solution, solution)
 
+    # These tests check that we don't generate a solution that contains
+    # more variables than the ones we specified on the parameter list
+    def test_Set1VariableDoesntGenerate2orMoreVariablesGraph2(self):
+        num_variables = 1
+        solution = generateVariableCombinations(self.root_2,
+                                                self.graph_2,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
+
+    def test_Set2VariablesDoesntGenerate3orMoreVariablesGraph2(self):
+        num_variables = 2
+        solution = generateVariableCombinations(self.root_2,
+                                                self.graph_2,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
+
+    def test_Set3VariablesDoesntGenerate4orMoreVariablesGraph2(self):
+        num_variables = 3
+        solution = generateVariableCombinations(self.root_2,
+                                                self.graph_2,
+                                                num_variables)
+        solution = all(map(lambda x: len(x) <= num_variables, solution))
+        self.assertTrue(solution)
 
 if __name__ == '__main__':
     unittest.main()
