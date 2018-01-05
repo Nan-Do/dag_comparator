@@ -95,7 +95,6 @@ def buildSuccessors(node, graph, depth, antecessors, successors):
 #    [c, e]
 #    [d]
 #    [e]
-# TODO: Add a paramater to specify a maximum depth
 def generateSourceSubgraphs(root, graph, max_depth=float("inf")):
     # We need a set as in a DAG one node can be reached by more than one path
     # and therefore there could be duplicates, using a set avoid that.
