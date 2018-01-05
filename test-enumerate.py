@@ -1,6 +1,9 @@
 import unittest
 
+from collections import defaultdict
+
 from enumerate import generateVariableCombinations
+from enumerate import buildSuccessors
 
 
 class testGenerateVariableCombinations(unittest.TestCase):
@@ -59,14 +62,14 @@ class testGenerateVariableCombinations(unittest.TestCase):
         valid_solution = set([('c',), ('d',), ('b',), ('e',)])
         solution = generateVariableCombinations(self.root_1, self.graph_1, 1)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     def test_Set2VariablesGraph1(self):
         valid_solution = set([('d', 'e'), ('c',), ('b',), ('b', 'c'), ('e',),
                               ('d',), ('c', 'd'), ('b', 'e'), ('b', 'd')])
         solution = generateVariableCombinations(self.root_1, self.graph_1, 2)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     def test_Set3VariablesGraph1(self):
         valid_solution = set([('d', 'e'), ('b', 'c', 'd'), ('c',), ('b',),
@@ -75,7 +78,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
 
         solution = generateVariableCombinations(self.root_1, self.graph_1, 3)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     def test_Set4VariableGraph1(self):
         # This should be the same as for 3 variables as you can put 4 variables
@@ -85,7 +88,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
                                                       3)
         solution = generateVariableCombinations(self.root_1, self.graph_1, 4)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     # These tests check that we don't generate a solution that contains
     # more variables than the ones we specified on the parameter list
@@ -117,13 +120,13 @@ class testGenerateVariableCombinations(unittest.TestCase):
         valid_solution = set([('b',), ('c',)])
         solution = generateVariableCombinations(self.root_2, self.graph_2, 1)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     def test_Set2VariableGraph2(self):
         valid_solution = set([('b',), ('c',), ('b', 'c')])
         solution = generateVariableCombinations(self.root_2, self.graph_2, 2)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     def test_Set3VariableGraph2(self):
         valid_solution = generateVariableCombinations(self.root_2,
@@ -131,7 +134,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
                                                       2)
         solution = generateVariableCombinations(self.root_2, self.graph_2, 3)
 
-        self.assertSetEqual(valid_solution, solution)
+        self.assertEqual(valid_solution, solution)
 
     # These tests check that we don't generate a solution that contains
     # more variables than the ones we specified on the parameter list
@@ -158,6 +161,37 @@ class testGenerateVariableCombinations(unittest.TestCase):
                                                 num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
+
+
+class testBuildSuccessors(unittest.TestCase):
+    def setUp(self):
+        # Trivial example
+        #       a
+        #      / \
+        #      b c
+        self.root_2 = "a"
+        self.graph_2 = {
+            "a": tuple("bc"),
+            "b": tuple(""),
+            "c": tuple("")
+        }
+
+    def test_successorsFromRootGraph2(self):
+        solutions = {'a': {'c': 1, 'b': 1}}
+        successors = defaultdict(dict)
+        buildSuccessors(self.root_2, self.graph_2, 0, set(), successors)
+
+        self.assertEqual(successors, solutions)
+
+    def test_successorsFromLeafGraph2(self):
+        solutions = {}
+        successors = defaultdict(dict)
+        buildSuccessors('b', self.graph_2, 0, set(), successors)
+
+        self.assertEqual(successors, solutions)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
