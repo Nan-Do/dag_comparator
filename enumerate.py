@@ -35,9 +35,26 @@ def stringifyGraph(node, graph, variables=""):
     return graph_string
 
 
-# Auxiliary function that compute all the possible successors of a
-# node in a graph. Also does the  same recursively for all its
-# descendants.
+# Auxiliary recursive function that compute all the possible successors of a
+# node in a graph indicating also its minimum distance. The function
+# does the  same recursively for all its descendants.
+# Input:
+#  node: The node from which we want to compute the successors.
+#  graph: The graph to compute the successors.
+#  depth: The current depth of the recursion it must start on 0.
+#  antecessor: The set of antecessors of the current node. The first call must
+#              use an empty set.
+#  successors: A dictionary of dictionaries, it will contain the successors and
+#              the minimum distance to each one from the root.
+#              This parameter will also be the output. The dictionary is
+#              mutated on place so the paramater is a referece. The first call
+#              must use an empty defaultdict(dict).
+# Ex: For the graph
+#       a
+#      / \
+#      b c
+# It will return on successors
+# defaultdict(<type 'dict'>, {'a': {'c': 1, 'b': 1}})
 # TODO: Currently a recursive version, create the iterative version
 def buildSuccessors(node, graph, depth, antecessors, successors):
     for antecessor in antecessors:
@@ -86,6 +103,7 @@ def generateSourceSubgraphs(root, graph, max_depth=float("inf")):
     successors = defaultdict(dict)
 
     buildSuccessors(root, graph, 0, set(), successors)
+    print successors
 
     frontier = [(root, 0)]
     while len(frontier):
