@@ -19,7 +19,7 @@ class DirectedAcyclicGraph:
     #       d f
     # Output:
     #    ( a ( b d ) ( c f ) )
-    def stringifyGraph(self, node, variables=""):
+    def stringifyGraph(self, node, variables=[], available_nodes=[]):
         graph_string = ""
 
         # Check if the current node is marked as variable
@@ -33,8 +33,11 @@ class DirectedAcyclicGraph:
             graph_string = "( " + node + " "
             children = []
             for child in self.graph[node]:
+                if available_nodes and child not in available_nodes:
+                    continue
                 children.append(self.stringifyGraph(child,
-                                                    variables))
+                                                    variables,
+                                                    available_nodes))
             graph_string += " ".join(children) + " )"
         else:
             graph_string = node
@@ -239,5 +242,6 @@ class DirectedAcyclicGraph:
             for combination in self.generateVariableCombinations(source_root,
                                                                  number_of_variables,
                                                                  source_subgraph):
+                print source_subgraph
                 # So far print the string version of the graph
-                print self.stringifyGraph(source_root, combination)
+                print self.stringifyGraph(source_root, combination, source_subgraph)
