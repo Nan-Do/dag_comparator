@@ -35,84 +35,22 @@ def stringifyGraph(node, graph, variables=""):
     return graph_string
 
 
-# General and  naive function to generate all the possible subgraphs of a given
-# graph. Used as a reference by now
-def generateSubGraphs(notYetConsidered, soFar, neighbors, graph, answers):
-    candidates = notYetConsidered.copy()
-
-    if len(soFar) > 0:
-        candidates = candidates.intersection(neighbors)
-
-    if len(candidates) == 0:
-        answers.append(soFar)
-    else:
-        for v in candidates:
-            newNotYetConsidered = notYetConsidered.difference([v])
-            generateSubGraphs(newNotYetConsidered.copy(),
-                              soFar.copy(),
-                              graph[v],
-                              answers)
-            generateSubGraphs(newNotYetConsidered.copy(),
-                              soFar.union([v]),
-                              graph[v],
-                              answers)
-
-
 # Auxiliary function that compute all the possible successors of a
 # node in a graph. Also does the  same recursively for all its
 # descendants.
 # TODO: Currently a recursive version, create the iterative version
-def buildSuccessors(node, graph, antecessors, successors):
+def buildSuccessors(node, graph, depth, antecessors, successors):
     for antecessor in antecessors:
-        if node not in successors[antecessor]:
-            successors[antecessor] += (node,)
+        temp_dict = successors[antecessor]
+        if node not in temp_dict:
+            temp_dict[node] = depth
+        else:
+            if depth < temp_dict[node]:
+                temp_dict[node] = depth
 
     next_antecessors = antecessors.union(node)
     for child in graph[node]:
-        buildSuccessors(child, graph, next_antecessors, successors)
-
-
-# This function generates all the possible subgraphs given a directed
-# acyclic graph and its root node.
-# For each node of the graph there are three cases to generate the
-# all the possible subgraphs.
-# We can generates a subgraph:
-#    - Using the current node
-#    - Using the whole subgraph reachable from the current node
-#      (For that we call the auxiliary function BuildSuccessors)
-#    - Adding the current node as a leaf to the previous computed subgraphs
-def generateSubGraphsDagWithRoot(root, graph):
-    solutions = set()
-    successors = defaultdict(tuple)
-
-    buildSuccessors(root, graph, set(), successors)
-
-    frontier = [(root, tuple())]
-    while len(frontier):
-        node, antecessors = frontier.pop()
-        next_antecessors = antecessors + (node,)
-
-        # Append the current node as a subgraph
-        solutions.add((node,))
-        # Append the whole subgraph starting from the current node
-        # If we are in a leaf we shouldn't add the node as is the
-        # same as the previous case
-        if len(graph[node]):
-            solutions.add(tuple(successors[node]) + (node,))
-            solutions.add(tuple(graph[node]) + (node,))
-        # Append the graph including the antecessors until the current node
-        # If antecessors is empty we are in the root and that would append
-        # the root node twice
-        if len(antecessors):
-            solutions.add(next_antecessors)
-
-        if len(graph[node]) and len(antecessors):
-            solutions.add(tuple(next_antecessors + successors[node]))
-
-        for child in graph[node]:
-            frontier.append((child, next_antecessors))
-
-    return solutions
+        buildSuccessors(child, graph, depth + 1, next_antecessors, successors)
 
 
 # This function generates all the source subgraphs required to put variables
@@ -141,68 +79,36 @@ def generateSubGraphsDagWithRoot(root, graph):
 #    [d]
 #    [e]
 # TODO: Add a paramater to specify a maximum depth
-def generateSourceSubgraphs(root, graph):
+def generateSourceSubgraphs(root, graph, max_depth=float("inf")):
     # We need a set as in a DAG one node can be reached by more than one path
     # and therefore there could be duplicates, using a set avoid that.
     solutions = set()
-    successors = defaultdict(tuple)
+    successors = defaultdict(dict)
 
-    buildSuccessors(root, graph, set(), successors)
+    buildSuccessors(root, graph, 0, set(), successors)
 
-    frontier = [root]
+    frontier = [(root, 0)]
     while len(frontier):
-        node = frontier.pop()
-        solutions.add(((node,) + successors[node], node))
+        node, depth = frontier.pop()
+        # Get the nodes that are below the requested depth
+        nodes = tuple()
+        if successors[node]:
+            node_successors = successors[node]
+            nodes = filter(lambda x: (node_successors[x] - depth) <= max_depth,
+                           node_successors.iterkeys())
+
+        solutions.add(((node,) + tuple(nodes), node))
+        depth += 1
 
         for child in graph[node]:
-            frontier.append(child)
-
-    return solutions
-
-
-# Old function not used anymore.
-# This function uses a different model of recursion that not as
-# accurate.
-def _generateVariableCombinations(root,
-                                  graph_nodes,
-                                  graph,
-                                  total_number_of_variables):
-    nodes = set(graph_nodes).difference((root,))
-    successors = defaultdict(tuple)
-    solutions = list()
-
-    buildSuccessors(root, graph, set(), successors)
-
-    frontier = [(nodes, 0, ())]
-    while len(frontier):
-        current_nodes, number_of_variables, current_solution =\
-                frontier.pop()
-
-        # Check if the solution actually contains some elements
-        # As the first solution we add is the empty set we need to
-        # check it in order to not add it
-        if len(current_solution):
-            solutions.append(current_solution)
-
-        # We don't want to specify more variables than the ones that
-        # we specify on the function parameter
-        if number_of_variables < total_number_of_variables:
-            for node in current_nodes:
-                # For the new solution remove  the descendants of the node
-                # that we are using as a location for the variable.
-                # Increase the  number of assigned variables by 1 and
-                # Add the node to current temporary solutions
-                frontier.append((current_nodes.difference(successors[node] +
-                                                          (node,)),
-                                 number_of_variables + 1,
-                                 current_solution + (node,)))
+            frontier.append((child, depth))
 
     return solutions
 
 
 # This functions computes all the possible paths of the graph starting from
-# the root using only the nodes in available nodes and returns a set with the
-# reachable nodes.
+# the root and using only the nodes in available_nodes. The function returns a
+# set with the reachable nodes.
 # Auxiliary function used to compute all the valid positions
 # in which we can put a variable.
 # Ex:
@@ -295,14 +201,17 @@ def generateVariableCombinations(root,
     return solutions
 
 
-def generateVariableMappings(root, graph, number_of_variables):
+def generateVariableMappings(root,
+                             graph,
+                             number_of_variables,
+                             max_depth=float("inf")):
     # Get the source subgraphs
-    source_subgraphs = generateSourceSubgraphs(root, graph)
+    source_subgraphs = generateSourceSubgraphs(root, graph, max_depth)
 
     # For each subgraph get all valid combination of variables that we
     # can set up to number_of_variables
     for (source_subgraph, source_root) in source_subgraphs:
-        print source_subgraph, source_root
+        # print source_subgraph, source_root
         # So far if the graph is composed by just one node it doesn't return
         # anything
         for combination in generateVariableCombinations(source_root,
@@ -331,8 +240,8 @@ if __name__ == '__main__':
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)
     # print generateVariableCombinations(root, graph, 3)
-    # print generateSourceSubgraphs(root, graph)
-    generateVariableMappings(root, graph, 1)
+    print generateSourceSubgraphs(root, graph, 2)
+    # generateVariableMappings(root, graph, 2)
     # print stringifyGraph(root, graph, "a")
     # successors = defaultdict(tuple)
     # BuildSuccessors(root, graph, set(), successors)
