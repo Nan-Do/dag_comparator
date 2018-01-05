@@ -103,7 +103,6 @@ def generateSourceSubgraphs(root, graph, max_depth=float("inf")):
     successors = defaultdict(dict)
 
     buildSuccessors(root, graph, 0, set(), successors)
-    print successors
 
     frontier = [(root, 0)]
     while len(frontier):
@@ -137,7 +136,7 @@ def generateSourceSubgraphs(root, graph, max_depth=float("inf")):
 #    --d e
 # Available nodes: "cde"
 # Output: set(['d', 'e', 'c'])
-def getSelectableNodes(available_nodes, root, graph):
+def getSelectableNodes(root, graph, available_nodes):
     reachable = set()
 
     frontier = list(graph[root])
@@ -196,9 +195,9 @@ def generateVariableCombinations(root,
         if len(variables) < total_number_of_variables:
             for node in selectable:
                 # Get the nodes in which we can put a variable
-                new_selectable = getSelectableNodes(selectable.difference(node),
-                                                    root,
-                                                    graph)
+                new_selectable = getSelectableNodes(root,
+                                                    graph,
+                                                    selectable.difference(node))
                 solution = variables + (node,)
                 # To store all the possible permutations and not just a
                 # canonical combination change solutions to a list and
@@ -258,8 +257,8 @@ if __name__ == '__main__':
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)
     # print generateVariableCombinations(root, graph, 3)
-    print generateSourceSubgraphs(root, graph, 2)
-    # generateVariableMappings(root, graph, 2)
+    # print generateSourceSubgraphs(root, graph, 2)
+    generateVariableMappings(root, graph, 1, 1)
     # print stringifyGraph(root, graph, "a")
     # successors = defaultdict(tuple)
     # BuildSuccessors(root, graph, set(), successors)
