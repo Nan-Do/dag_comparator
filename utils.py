@@ -1,16 +1,19 @@
-# This function creates a s expression given a graph specified as
-# dictionary of adyacency lists.
-# Variables represents the positions of the graph in which we are
-# interested in putting variables.
-# Ex Input:
-#        a
-#       / \
-#       b c
-#       | |
-#       d f
-# Output:
-#    ( a ( b d ) ( c f ) )
 def stringifyGraph(dag, node, variables=[], available_nodes=[]):
+    """
+    This function creates a s expression given a graph specified as
+    dictionary of adyacency lists.
+    Variables represents the positions of the graph in which we are
+    interested in putting variables.
+    Ex Input:
+           a
+          / \
+          b c
+          | |
+          d f
+    Output:
+       ( a ( b d ) ( c f ) )
+    """
+
     graph_string = ""
 
     # Check if the current node is marked as variable
