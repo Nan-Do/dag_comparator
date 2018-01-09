@@ -78,7 +78,7 @@ class testGenerateVariableMappings(unittest.TestCase):
     def test_Set4VariableGraph1(self):
         # This should be the same as for 3 variables as you can put 4 variables
         # on the graph
-        valid_solution = self.dag_mapper1.generateVariableMappings(self.dag1.root, 
+        valid_solution = self.dag_mapper1.generateVariableMappings(self.dag1.root,
                                                                    3)
         solution = self.dag_mapper1.generateVariableMappings(self.dag1.root, 4)
 
@@ -196,7 +196,6 @@ class testBuildSuccessors(unittest.TestCase):
 
         self.assertEqual(solutions, successors)
 
-
     def test_successorsFromNodeBGraph1(self):
         solutions = dict({'c': {'e': 2}, 'b': {'c': 1, 'e': 2, 'd': 1}})
         successors = defaultdict(dict)
@@ -217,9 +216,6 @@ class testBuildSuccessors(unittest.TestCase):
                                                                       set(),
                                                                       successors)
         self.assertEqual(solutions, successors)
-        
-
-
 
     def test_successorsFromRootGraph2(self):
         solutions = {'a': {'c': 1, 'b': 1}}
@@ -228,7 +224,6 @@ class testBuildSuccessors(unittest.TestCase):
                                                                       0,
                                                                       set(),
                                                                       successors)
-
         self.assertEqual(successors, solutions)
 
     def test_successorsFromLeafGraph2(self):
@@ -240,6 +235,109 @@ class testBuildSuccessors(unittest.TestCase):
                                                                       successors)
 
         self.assertEqual(successors, solutions)
+
+class testGenerateSourceSubgraphs(unittest.TestCase):
+    def setUp(self):
+        # First graph:
+        #    ---a
+        #   |  / \
+        #   |  b-c
+        #   |  | |
+        #    --d e
+        root = "a"
+        graph = {
+            "a": tuple("bcd"),
+            "b": tuple("cd"),
+            "c": tuple("e"),
+            "d": tuple(""),
+            "e": tuple("")
+        }
+        self.dag1 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper1 = DirectedAcyclicGraphMapper(self.dag1)
+
+        # Trivial example
+        #       a
+        #      / \
+        #      b c
+        root = "a"
+        graph = {
+            "a": tuple("bc"),
+            "b": tuple(""),
+            "c": tuple("")
+        }
+        self.dag2 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper2 = DirectedAcyclicGraphMapper(self.dag2)
+
+    def test_sourceSubgraphsFromGraph1Depth0(self):
+        self.assertRaises(ValueError,
+                          self.dag_mapper1.generateSourceSubgraphs,
+                          0)
+
+    def test_sourceSubgraphsFromGraph1NegativeDepth(self):
+        self.assertRaises(ValueError,
+                          self.dag_mapper1.generateSourceSubgraphs,
+                          -1)
+
+    def test_sourceSubgraphsFromGraph1MaxDepth(self):
+        solutions = set([(('a', 'c', 'b', 'e', 'd'), 'a'), (('e',), 'e'),
+                         (('d',), 'd'), (('c', 'e'), 'c'),
+                         (('b', 'c', 'e', 'd'), 'b')])
+
+        subgraphs = self.dag_mapper1.generateSourceSubgraphs()
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph1Depth1(self):
+        solutions = set([(('a', 'c', 'b', 'd'), 'a'), (('e',), 'e'),
+                         (('d',), 'd'), (('c', 'e'), 'c'),
+                         (('b', 'c', 'd'), 'b')])
+
+        subgraphs = self.dag_mapper1.generateSourceSubgraphs(1)
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph1Depth2(self):
+        solutions = set([(('a', 'c', 'b', 'e', 'd'), 'a'), (('e',), 'e'),
+                         (('d',), 'd'), (('c', 'e'), 'c'),
+                         (('b', 'c', 'e', 'd'), 'b')])
+
+        subgraphs = self.dag_mapper1.generateSourceSubgraphs(2)
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph2Depth0(self):
+        self.assertRaises(ValueError,
+                          self.dag_mapper2.generateSourceSubgraphs,
+                          0)
+
+    def test_sourceSubgraphsFromGraph2NegativeDepth(self):
+        self.assertRaises(ValueError,
+                          self.dag_mapper2.generateSourceSubgraphs,
+                          -101)
+
+    def test_sourceSubgraphsFromGraph2MaxDepth(self):
+        solutions = set([(('a', 'c', 'b'), 'a'), (('b',), 'b'),
+                         (('c',), 'c')])
+
+        subgraphs = self.dag_mapper2.generateSourceSubgraphs()
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph2Depth1(self):
+        solutions = set([(('a', 'c', 'b'), 'a'), (('b',), 'b'),
+                         (('c',), 'c')])
+
+        subgraphs = self.dag_mapper2.generateSourceSubgraphs(1)
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph2Depth2(self):
+        solutions = set([(('a', 'c', 'b'), 'a'), (('b',), 'b'),
+                         (('c',), 'c')])
+
+        subgraphs = self.dag_mapper2.generateSourceSubgraphs(2)
+
+        self.assertEquals(solutions, subgraphs)
 
 
 if __name__ == '__main__':
