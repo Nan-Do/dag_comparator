@@ -155,6 +155,23 @@ class testGenerateVariableMappings(unittest.TestCase):
 
 class testBuildSuccessors(unittest.TestCase):
     def setUp(self):
+        # First graph:
+        #    ---a
+        #   |  / \
+        #   |  b-c
+        #   |  | |
+        #    --d e
+        root = "a"
+        graph = {
+            "a": tuple("bcd"),
+            "b": tuple("cd"),
+            "c": tuple("e"),
+            "d": tuple(""),
+            "e": tuple("")
+        }
+        self.dag1 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper1 = DirectedAcyclicGraphMapper(self.dag1)
+
         # Trivial example
         #       a
         #      / \
@@ -165,26 +182,62 @@ class testBuildSuccessors(unittest.TestCase):
             "b": tuple(""),
             "c": tuple("")
         }
-        self.dag = DirectedAcyclicGraph(root, graph)
-        self.dag_mapper = DirectedAcyclicGraphMapper(self.dag)
+        self.dag2 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper2 = DirectedAcyclicGraphMapper(self.dag2)
+
+    def test_successorsFromRootGraph1(self):
+        solutions = dict({'a': {'c': 1, 'b': 1, 'e': 2, 'd': 1}, 'c': {'e': 2}, 'b': {'c': 2, 'e': 3, 'd': 2}})
+        successors = defaultdict(dict)
+
+        self.dag_mapper1._DirectedAcyclicGraphMapper__buildSuccessors(self.dag1.root,
+                                                                      0,
+                                                                      set(),
+                                                                      successors)
+
+        self.assertEqual(solutions, successors)
+
+
+    def test_successorsFromNodeBGraph1(self):
+        solutions = dict({'c': {'e': 2}, 'b': {'c': 1, 'e': 2, 'd': 1}})
+        successors = defaultdict(dict)
+
+        self.dag_mapper1._DirectedAcyclicGraphMapper__buildSuccessors('b',
+                                                                      0,
+                                                                      set(),
+                                                                      successors)
+
+        self.assertEqual(solutions, successors)
+
+    def test_succesorsFromLeafGraph1(self):
+        solutions = dict()
+        successors = defaultdict(dict)
+
+        self.dag_mapper1._DirectedAcyclicGraphMapper__buildSuccessors('d',
+                                                                      0,
+                                                                      set(),
+                                                                      successors)
+        self.assertEqual(solutions, successors)
+        
+
+
 
     def test_successorsFromRootGraph2(self):
         solutions = {'a': {'c': 1, 'b': 1}}
         successors = defaultdict(dict)
-        self.dag_mapper._DirectedAcyclicGraphMapper__buildSuccessors(self.dag.root,
-                                                                     0,
-                                                                     set(),
-                                                                     successors)
+        self.dag_mapper2._DirectedAcyclicGraphMapper__buildSuccessors(self.dag2.root,
+                                                                      0,
+                                                                      set(),
+                                                                      successors)
 
         self.assertEqual(successors, solutions)
 
     def test_successorsFromLeafGraph2(self):
         solutions = {}
         successors = defaultdict(dict)
-        self.dag_mapper._DirectedAcyclicGraphMapper__buildSuccessors('b',
-                                                                     0,
-                                                                     set(),
-                                                                     successors)
+        self.dag_mapper2._DirectedAcyclicGraphMapper__buildSuccessors('b',
+                                                                      0,
+                                                                      set(),
+                                                                      successors)
 
         self.assertEqual(successors, solutions)
 
