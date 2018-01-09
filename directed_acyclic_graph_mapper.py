@@ -215,11 +215,14 @@ class DirectedAcyclicGraphMapper:
                                     number_of_variables,
                                     max_depth=float("inf")):
         """
+        As input it takes the maximum number of variables to set on each
+        subgraph and the max_depth to go down on each subgraph, by default
+        it explores the hole graph.
         This function generates all possible variable mappings for all
-        the source graphs that can be generated for the current dag.
+        the source graphs that can be generated for the dag.
         To generate the source subgraphs it calls the function
         generateSourceSubgraphs and to generate all the possible mapping for
-        each source subgraph it calls the function generateVariableMapping
+        each source subgraph it calls the function generateVariableMappings
         """
         # Get the source subgraphs
         source_subgraphs = self.generateSourceSubgraphs(max_depth)
