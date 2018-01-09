@@ -2,7 +2,7 @@ from collections import defaultdict
 
 
 # TODO: Review the names
-class DirectedAcyclicGraph:
+class DirectedAcyclicGraphMapper:
     def __init__(self, root, graph):
         self.root = root
         self.graph = graph
@@ -29,6 +29,7 @@ class DirectedAcyclicGraph:
                 graph_string += node
             return graph_string
 
+        # TODO: The output for subgraphs is ugly... Fixit!!!
         if len(self.graph[node]):
             graph_string = "( " + node + " "
             children = []
@@ -92,8 +93,8 @@ class DirectedAcyclicGraph:
     # and we produce both, at the moment of generating the subgraphs with
     # variables we will have duplicates. The source graphs for DAGS are formed
     # by the complete graph originated by the root node and the subgraphs
-    # formed by its children without counting the leafs. It means adding the
-    # whole graph depending of the root and processing its children in the same
+    # formed by its children using the children node as the root for the new
+    # subgraph.
     # way.
     #
     # Ex:
@@ -242,6 +243,5 @@ class DirectedAcyclicGraph:
             for combination in self.generateVariableCombinations(source_root,
                                                                  number_of_variables,
                                                                  source_subgraph):
-                print source_subgraph
                 # So far print the string version of the graph
                 print self.stringifyGraph(source_root, combination, source_subgraph)

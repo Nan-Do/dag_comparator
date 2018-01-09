@@ -1,4 +1,4 @@
-from directed_acyclic_graph import DirectedAcyclicGraph
+from directed_acyclic_graph DirectedAcyclicGraphMapper
 
 if __name__ == '__main__':
     root = "a"
@@ -14,13 +14,13 @@ if __name__ == '__main__':
         # "f": tuple(""),
         # "h": tuple("")
     }
-    dag = DirectedAcyclicGraph(root, graph)
+    dag = DirectedAcyclicGraphMapper(graph)
 
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)
     # print dag.generateVariableCombinations(dag.root, 2)
     # print dag.generateSourceSubgraphs(2)
-    dag.generateVariableMappings(1, 1)
+    dag.generateAllVariableCombinations(1, 1)
     # print stringifyGraph(root, graph, "a")
     # successors = defaultdict(tuple)
     # BuildSuccessors(root, graph, set(), successors)
