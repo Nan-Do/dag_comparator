@@ -1,4 +1,4 @@
-from directed_acyclic_graph_mapper DirectedAcyclicGraphMapper
+from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
 if __name__ == '__main__':
     root = "a"
