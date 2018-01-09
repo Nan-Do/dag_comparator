@@ -29,7 +29,6 @@ class DirectedAcyclicGraphMapper:
                 graph_string += node
             return graph_string
 
-        # TODO: The output for subgraphs is ugly... Fixit!!!
         if len(self.graph[node]):
             graph_string = "( " + node + " "
             children = []
@@ -39,7 +38,10 @@ class DirectedAcyclicGraphMapper:
                 children.append(self.stringifyGraph(child,
                                                     variables,
                                                     available_nodes))
-            graph_string += " ".join(children) + " )"
+            if len(children):
+                graph_string += " ".join(children) + ' )'
+            else:
+                graph_string += ")"
         else:
             graph_string = node
 
