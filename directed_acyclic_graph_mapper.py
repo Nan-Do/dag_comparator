@@ -3,8 +3,12 @@ from collections import defaultdict
 from utils import stringifyGraph
 
 
-# TODO: Review the names
 class DirectedAcyclicGraphMapper:
+    """This class takes a Direct acyclic graph and computes all its
+    possible mappings.
+    The init function takes a Directed Acyclic Graph as specified in
+    the datastructures.py file. To generate all the possible variable
+    mappings the function generateAllVariableCombinations has to be used"""
     def __init__(self, dag):
         self.dag = dag
 
