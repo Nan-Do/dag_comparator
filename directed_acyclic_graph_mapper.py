@@ -55,6 +55,7 @@ class DirectedAcyclicGraphMapper:
                                    next_antecessors,
                                    successors)
 
+    # TODO: Check the input with max_depth=0
     def generateSourceSubgraphs(self, max_depth=float("inf")):
         """
         This function generates all the source subgraphs required to put all
@@ -86,6 +87,10 @@ class DirectedAcyclicGraphMapper:
            [d]
            [e]
         """
+
+        # Check that the provided depth is a positive integer
+        if max_depth <= 0:
+            raise ValueError("The depth has to be a positive integer")
 
         # We need a set as in a DAG one node can be reached by more than one
         # path and therefore there could be duplicates, using a set avoid that.
