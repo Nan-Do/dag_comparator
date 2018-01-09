@@ -2,7 +2,7 @@ import unittest
 
 from collections import defaultdict
 
-from directed_acyclic_graph import DirectedAcyclicGraphMapper
+from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
 
 class testGenerateVariableCombinations(unittest.TestCase):
