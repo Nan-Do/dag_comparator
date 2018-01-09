@@ -140,10 +140,10 @@ class DirectedAcyclicGraphMapper:
     # initial_nodes is an optional parameter that represent the initial set of
     # nodes that we will consider.  This, along the starting node, allows us
     # to consider subgraphs using only a set of nodes to represent it.
-    def generateVariableCombinations(self,
-                                     starting_node,
-                                     total_number_of_variables,
-                                     initial_nodes=None):
+    def generateVariableMappings(self,
+                                 starting_node,
+                                 total_number_of_variables,
+                                 initial_nodes=None):
         solutions = set()
 
         # Errors
@@ -195,9 +195,9 @@ class DirectedAcyclicGraphMapper:
 
         return solutions
 
-    def generateAllVariableCombinations(self,
-                                        number_of_variables,
-                                        max_depth=float("inf")):
+    def generateAllVariableMappings(self,
+                                    number_of_variables,
+                                    max_depth=float("inf")):
         # Get the source subgraphs
         source_subgraphs = self.generateSourceSubgraphs(max_depth)
 
@@ -207,9 +207,9 @@ class DirectedAcyclicGraphMapper:
             # print source_subgraph, source_root
             # So far if the graph is composed by just one node it doesn't
             # retur anything
-            for combination in self.generateVariableCombinations(source_root,
-                                                                 number_of_variables,
-                                                                 source_subgraph):
+            for combination in self.generateVariableMappings(source_root,
+                                                             number_of_variables,
+                                                             source_subgraph):
                 # So far print the string version of the graph
                 print stringifyGraph(self.dag,
                                      source_root,

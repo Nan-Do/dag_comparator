@@ -20,9 +20,9 @@ if __name__ == '__main__':
 
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)
-    # print dag_mapper.generateVariableCombinations(dag_mapper.root, 2)
+    # print dag_mapper.generateVariableMappings(dag_mapper.root, 2)
     # print dag_mapper.generateSourceSubgraphs(2)
-    dag_mapper.generateAllVariableCombinations(1, 1)
+    dag_mapper.generateAllVariableMappings(1, 1)
     # print stringifyGraph(root, graph, "a")
     # successors = defaultdict(tuple)
     # BuildSuccessors(root, graph, set(), successors)
