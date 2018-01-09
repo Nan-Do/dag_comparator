@@ -4,35 +4,42 @@ from utils import stringifyGraph
 
 
 class DirectedAcyclicGraphMapper:
-    """This class takes a Direct acyclic graph and computes all its
-    possible mappings.
-    The init function takes a Directed Acyclic Graph as specified in
-    the datastructures.py file. To generate all the possible variable
-    mappings the function generateAllVariableCombinations has to be used"""
+    """
+    This class takes a Direct acyclic graph and computes all its possible
+    mappings.
+
+    The dag is a Directed Acyclic Graph as specified in the file datastructures.
+    To generate all the possible variable mappings the function
+    generateAllVariableCombinations has to be used
+    """
+
     def __init__(self, dag):
         self.dag = dag
 
-    # Auxiliary recursive function that compute all the possible successors of
-    # a node in a graph indicating also its minimum distance. The function
-    # does the  same recursively for all its descendants.
-    # Input:
-    #  node: The node from which we want to compute the successors.
-    #  depth: The current depth of the recursion it must start on 0.
-    #  antecessor: The set of antecessors of the current node. The first call
-    #              must use an empty set.
-    #  successors: A dictionary of dictionaries, it will contain the successors
-    #              and the minimum distance to each one from the root.
-    #              This parameter will also be the output. The dictionary is
-    #              mutated on place so the paramater is a referece. The first
-    #              call must use an empty defaultdict(dict).
-    # Ex: For the graph
-    #       a
-    #      / \
-    #      b c
-    # It will return on successors
-    # defaultdict(<type 'dict'>, {'a': {'c': 1, 'b': 1}})
-    # TODO: Currently a recursive version, create the iterative version
+        # TODO: Currently a recursive version, create the iterative version
     def __buildSuccessors(self, node, depth, antecessors, successors):
+        """
+        Auxiliary recursive function that compute all the possible successors 
+        of a node in a graph indicating also its minimum distance. The function
+        does the  same recursively for all its descendants.
+        Input:
+         node: The node from which we want to compute the successors.
+         depth: The current depth of the recursion it must start on 0.
+         antecessor: The set of antecessors of the current node. The first call
+                     must use an empty set.
+         successors: A dictionary of dictionaries, it will contain the successors
+                     and the minimum distance to each one from the root.
+                     This parameter will also be the output. The dictionary is
+                     mutated on place so the paramater is a referece. The first
+                     call must use an empty defaultdict(dict).
+        Ex: For the graph
+              a
+             / \
+             b c
+        It will return on successors
+        defaultdict(<type 'dict'>, {'a': {'c': 1, 'b': 1}})
+        """
+
         for antecessor in antecessors:
             temp_dict = successors[antecessor]
             if node not in temp_dict:
@@ -48,35 +55,38 @@ class DirectedAcyclicGraphMapper:
                                    next_antecessors,
                                    successors)
 
-    # This function generates all the source subgraphs required to put all the
-    # mapping variables. As input it takes the maximum depth that we are going
-    # to use to explore the graph. As an output it generates tuples of nodes,
-    # this tuples of nodes represent the the source subgraphs, the edges are
-    # the same as in the original graph so we don't need to store them.
-    #
-    # The set of source subgraphs is the minimum set of subgraphs we require in
-    # order to generate all the subgraphs with variables. This means that is a
-    # subgraphs is subsumed into another one, for example [a, b, d] and [a, b],
-    # and we produce both, at the moment of generating the subgraphs with
-    # variables we will have duplicates. The source graphs for DAGS are formed
-    # by the complete graph originated by the root node and the subgraphs
-    # formed by its children using the children node as the root for the new
-    # subgraph.
-    # way.
-    #
-    # Ex:
-    #        a
-    #       / \
-    #       b c
-    #       | |
-    #       d e
-    # Returns:
-    #    [a, b, c, d, e]
-    #    [b, d]
-    #    [c, e]
-    #    [d]
-    #    [e]
     def generateSourceSubgraphs(self, max_depth=float("inf")):
+        """
+        This function generates all the source subgraphs required to put all
+        the mapping variables. As input it takes the maximum depth that we are
+        going to use to explore the graph. As an output it generates tuples of
+        nodes, this tuples of nodes represent the the source subgraphs, the
+        edges are the same as in the original graph so we don't need to store
+        them again.
+
+        The set of source subgraphs is the minimum set of subgraphs we require
+        in order to generate all the subgraphs with variables. This means that
+        is a subgraphs is subsumed into another one, for example [a, b, d] and
+        [a, b], and we produce both, at the moment of generating the subgraphs
+        with variables we will have duplicates. The source graphs for DAGS are
+        formed by the complete graph originated by the root node and the
+        subgraphs formed by its children using the children node as the root
+        for the new subgraph.
+
+        Ex:
+               a
+              / \
+              b c
+              | |
+              d e
+        Returns:
+           [a, b, c, d, e]
+           [b, d]
+           [c, e]
+           [d]
+           [e]
+        """
+
         # We need a set as in a DAG one node can be reached by more than one
         # path and therefore there could be duplicates, using a set avoid that.
         solutions = set()
@@ -102,22 +112,25 @@ class DirectedAcyclicGraphMapper:
 
         return solutions
 
-    # This functions computes all the possible paths of the graph starting from
-    # the root and using only the nodes in available_nodes. The function
-    # returns a set with the reachable nodes.
-    #
-    # Auxiliary function used to compute all the valid positions
-    # in which we can put a variable.
-    #
-    # Ex:
-    #    ---a
-    #   |  / \
-    #   |  b-c
-    #   |  | |
-    #    --d e
-    # Available nodes: "cde"
-    # Output: set(['d', 'e', 'c'])
     def __getSelectableNodes(self, available_nodes):
+        """
+        This functions computes all the possible paths of the graph
+        starting from the root and using only the nodes in available_nodes.
+        The function returns a set with the reachable nodes.
+
+        Auxiliary function used to compute all the valid positions
+        in which we can put a variable.
+
+        Ex:
+           ---a
+          |  / \
+          |  b-c
+          |  | |
+           --d e
+        Available nodes: "cde"
+        Output: set(['d', 'e', 'c'])
+        """
+
         reachable = set()
 
         frontier = list(self.dag.graph[self.dag.root])
@@ -132,18 +145,21 @@ class DirectedAcyclicGraphMapper:
 
         return reachable
 
-    # This function computes all the valid variable positions for a given
-    # graph. As input it takes the starting node and the total number of
-    # variables to set.
-    # As an output it returns a list of tuples, each tuple is a sequence of
-    # nodes, each one representing a valid position for a variable.
-    # initial_nodes is an optional parameter that represent the initial set of
-    # nodes that we will consider.  This, along the starting node, allows us
-    # to consider subgraphs using only a set of nodes to represent it.
     def generateVariableMappings(self,
                                  starting_node,
                                  total_number_of_variables,
                                  initial_nodes=None):
+        """
+        This function computes all the valid variable positions for a given
+        graph. As input it takes the starting node and the total number of
+        variables to set.
+        As an output it returns a list of tuples, each tuple is a sequence of
+        nodes, each one representing a valid position for a variable,
+        initial_nodes is an optional parameter that represent the initial set
+        of nodes that we will consider.  This, along the starting node, allows
+        us to consider subgraphs using only a set of nodes to represent it.
+        """
+
         solutions = set()
 
         # Errors
