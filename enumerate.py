@@ -1,3 +1,4 @@
+from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
 if __name__ == '__main__':
@@ -14,7 +15,8 @@ if __name__ == '__main__':
         # "f": tuple(""),
         # "h": tuple("")
     }
-    dag_mapper = DirectedAcyclicGraphMapper(root, graph)
+    dag = DirectedAcyclicGraph(root, graph)
+    dag_mapper = DirectedAcyclicGraphMapper(dag)
 
     # import pudb; pudb.set_trace()
     # print getSelectableNodes("ced", root, graph)

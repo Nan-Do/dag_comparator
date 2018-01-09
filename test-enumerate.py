@@ -2,6 +2,7 @@ import unittest
 
 from collections import defaultdict
 
+from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
 
@@ -22,7 +23,8 @@ class testGenerateVariableCombinations(unittest.TestCase):
             "d": tuple(""),
             "e": tuple("")
         }
-        self.dag_mapper1 = DirectedAcyclicGraphMapper(root, graph)
+        self.dag1 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper1 = DirectedAcyclicGraphMapper(self.dag1)
 
         # Trivial example
         #       a
@@ -34,7 +36,8 @@ class testGenerateVariableCombinations(unittest.TestCase):
             "b": tuple(""),
             "c": tuple("")
         }
-        self.dag_mapper2 = DirectedAcyclicGraphMapper(root, graph)
+        self.dag2 = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper2 = DirectedAcyclicGraphMapper(self.dag2)
 
     # Tests to validate the input
     def test_SetVariableUnknownRoot(self):
@@ -52,7 +55,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
     # Tests to check that the solutions are correct
     def test_Set1VariableGraph1(self):
         valid_solution = set([('c',), ('d',), ('b',), ('e',)])
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  1)
 
         self.assertEqual(valid_solution, solution)
@@ -60,7 +63,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
     def test_Set2VariablesGraph1(self):
         valid_solution = set([('d', 'e'), ('c',), ('b',), ('b', 'c'), ('e',),
                               ('d',), ('c', 'd'), ('b', 'e'), ('b', 'd')])
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  2)
 
         self.assertEqual(valid_solution, solution)
@@ -70,7 +73,7 @@ class testGenerateVariableCombinations(unittest.TestCase):
                               ('b', 'c'), ('e',), ('d',), ('b', 'd', 'e'),
                               ('c', 'd'), ('b', 'e'), ('b', 'd')])
 
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  3)
 
         self.assertEqual(valid_solution, solution)
@@ -78,9 +81,9 @@ class testGenerateVariableCombinations(unittest.TestCase):
     def test_Set4VariableGraph1(self):
         # This should be the same as for 3 variables as you can put 4 variables
         # on the graph
-        valid_solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        valid_solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                        3)
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  4)
 
         self.assertEqual(valid_solution, solution)
@@ -89,43 +92,43 @@ class testGenerateVariableCombinations(unittest.TestCase):
     # more variables than the ones we specified on the parameter list
     def test_Set1VariableDoesntGenerate2orMoreVariablesGraph1(self):
         num_variables = 1
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
 
     def test_Set2VariablesDoesntGenerate3orMoreVariablesGraph1(self):
         num_variables = 2
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
 
     def test_Set3VariablesDoesntGenerate4orMoreVariablesGraph1(self):
         num_variables = 3
-        solution = self.dag_mapper1.generateVariableCombinations(self.dag_mapper1.root,
+        solution = self.dag_mapper1.generateVariableCombinations(self.dag1.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
 
     def test_Set1VariableGraph2(self):
         valid_solution = set([('b',), ('c',)])
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  1)
 
         self.assertEqual(valid_solution, solution)
 
     def test_Set2VariablesGraph2(self):
         valid_solution = set([('b',), ('c',), ('b', 'c')])
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  2)
 
         self.assertEqual(valid_solution, solution)
 
     def test_Set3VariableGraph2(self):
-        valid_solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        valid_solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                        2)
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  3)
 
         self.assertEqual(valid_solution, solution)
@@ -134,21 +137,21 @@ class testGenerateVariableCombinations(unittest.TestCase):
     # more variables than the ones we specified on the parameter list
     def test_Set1VariableDoesntGenerate2orMoreVariablesGraph2(self):
         num_variables = 1
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
 
     def test_Set2VariablesDoesntGenerate3orMoreVariablesGraph2(self):
         num_variables = 2
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
 
     def test_Set3VariablesDoesntGenerate4orMoreVariablesGraph2(self):
         num_variables = 3
-        solution = self.dag_mapper2.generateVariableCombinations(self.dag_mapper2.root,
+        solution = self.dag_mapper2.generateVariableCombinations(self.dag2.root,
                                                                  num_variables)
         solution = all(map(lambda x: len(x) <= num_variables, solution))
         self.assertTrue(solution)
@@ -166,12 +169,13 @@ class testBuildSuccessors(unittest.TestCase):
             "b": tuple(""),
             "c": tuple("")
         }
-        self.dag_mapper = DirectedAcyclicGraphMapper(root, graph)
+        self.dag = DirectedAcyclicGraph(root, graph)
+        self.dag_mapper = DirectedAcyclicGraphMapper(self.dag)
 
     def test_successorsFromRootGraph2(self):
         solutions = {'a': {'c': 1, 'b': 1}}
         successors = defaultdict(dict)
-        self.dag_mapper._DirectedAcyclicGraphMapper__buildSuccessors(self.dag_mapper.root,
+        self.dag_mapper._DirectedAcyclicGraphMapper__buildSuccessors(self.dag.root,
                                                                      0,
                                                                      set(),
                                                                      successors)

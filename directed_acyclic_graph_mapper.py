@@ -3,9 +3,8 @@ from collections import defaultdict
 
 # TODO: Review the names
 class DirectedAcyclicGraphMapper:
-    def __init__(self, root, graph):
-        self.root = root
-        self.graph = graph
+    def __init__(self, dag):
+        self.dag = dag
 
     # This function creates a s expression given a graph specified as
     # dictionary of adyacency lists.
@@ -25,14 +24,14 @@ class DirectedAcyclicGraphMapper:
         # Check if the current node is marked as variable
         if node in variables:
             graph_string = "?x" + str(variables.index(node)) + "|"
-            if len(self.graph[node]):
+            if len(self.dag.graph[node]):
                 graph_string += node
             return graph_string
 
-        if len(self.graph[node]):
+        if len(self.dag.graph[node]):
             graph_string = "( " + node + " "
             children = []
-            for child in self.graph[node]:
+            for child in self.dag.graph[node]:
                 if available_nodes and child not in available_nodes:
                     continue
                 children.append(self.stringifyGraph(child,
@@ -77,7 +76,7 @@ class DirectedAcyclicGraphMapper:
                     temp_dict[node] = depth
 
         next_antecessors = antecessors.union(node)
-        for child in self.graph[node]:
+        for child in self.dag.graph[node]:
             self.__buildSuccessors(child,
                                    depth + 1,
                                    next_antecessors,
@@ -117,9 +116,9 @@ class DirectedAcyclicGraphMapper:
         solutions = set()
         successors = defaultdict(dict)
 
-        self.__buildSuccessors(self.root, 0, set(), successors)
+        self.__buildSuccessors(self.dag.root, 0, set(), successors)
 
-        frontier = [(self.root, 0)]
+        frontier = [(self.dag.root, 0)]
         while len(frontier):
             node, depth = frontier.pop()
             # Get the nodes that are below the requested depth
@@ -132,7 +131,7 @@ class DirectedAcyclicGraphMapper:
             solutions.add(((node,) + tuple(nodes), node))
             depth += 1
 
-            for child in self.graph[node]:
+            for child in self.dag.graph[node]:
                 frontier.append((child, depth))
 
         return solutions
@@ -155,7 +154,7 @@ class DirectedAcyclicGraphMapper:
     def __getSelectableNodes(self, available_nodes):
         reachable = set()
 
-        frontier = list(self.graph[self.root])
+        frontier = list(self.dag.graph[self.dag.root])
         while frontier:
             node = frontier.pop()
 
@@ -163,7 +162,7 @@ class DirectedAcyclicGraphMapper:
                 continue
 
             reachable.add(node)
-            frontier.extend(self.graph[node])
+            frontier.extend(self.dag.graph[node])
 
         return reachable
 
@@ -186,11 +185,11 @@ class DirectedAcyclicGraphMapper:
         if total_number_of_variables <= 0:
             raise ValueError("Incorrect number of variables to assign")
         # Root not belonging to the graph
-        if starting_node not in self.graph:
+        if starting_node not in self.dag.graph:
             raise ValueError("The root does not belong to the graph")
 
         if initial_nodes is None:
-            initial_nodes = set(self.graph.iterkeys())
+            initial_nodes = set(self.dag.graph.iterkeys())
         else:
             initial_nodes = set(initial_nodes)
 
@@ -221,7 +220,7 @@ class DirectedAcyclicGraphMapper:
                     # process it. If we don't stop the recursion by controlling
                     # the father we get incorrect solutions.
                     if not len(new_selectable) or \
-                       node not in self.graph[father]:
+                       node not in self.dag.graph[father]:
                         continue
 
                     frontier.append((new_selectable,
