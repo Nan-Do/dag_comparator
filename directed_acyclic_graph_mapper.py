@@ -1,50 +1,12 @@
 from collections import defaultdict
 
+from utils import stringifyGraph
+
 
 # TODO: Review the names
 class DirectedAcyclicGraphMapper:
     def __init__(self, dag):
         self.dag = dag
-
-    # This function creates a s expression given a graph specified as
-    # dictionary of adyacency lists.
-    # Variables represents the positions of the graph in which we are
-    # interested in putting variables.
-    # Ex Input:
-    #        a
-    #       / \
-    #       b c
-    #       | |
-    #       d f
-    # Output:
-    #    ( a ( b d ) ( c f ) )
-    def stringifyGraph(self, node, variables=[], available_nodes=[]):
-        graph_string = ""
-
-        # Check if the current node is marked as variable
-        if node in variables:
-            graph_string = "?x" + str(variables.index(node)) + "|"
-            if len(self.dag.graph[node]):
-                graph_string += node
-            return graph_string
-
-        if len(self.dag.graph[node]):
-            graph_string = "( " + node + " "
-            children = []
-            for child in self.dag.graph[node]:
-                if available_nodes and child not in available_nodes:
-                    continue
-                children.append(self.stringifyGraph(child,
-                                                    variables,
-                                                    available_nodes))
-            if len(children):
-                graph_string += " ".join(children) + ' )'
-            else:
-                graph_string += ")"
-        else:
-            graph_string = node
-
-        return graph_string
 
     # Auxiliary recursive function that compute all the possible successors of
     # a node in a graph indicating also its minimum distance. The function
@@ -245,4 +207,7 @@ class DirectedAcyclicGraphMapper:
                                                                  number_of_variables,
                                                                  source_subgraph):
                 # So far print the string version of the graph
-                print self.stringifyGraph(source_root, combination, source_subgraph)
+                print stringifyGraph(self.dag,
+                                     source_root,
+                                     combination,
+                                     source_subgraph)
