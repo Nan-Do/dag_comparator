@@ -19,7 +19,7 @@ class DirectedAcyclicGraphMapper:
         # TODO: Currently a recursive version, create the iterative version
     def __buildSuccessors(self, node, depth, antecessors, successors):
         """
-        Auxiliary recursive function that compute all the possible successors 
+        Auxiliary recursive function that compute all the possible successors
         of a node in a graph indicating also its minimum distance. The function
         does the  same recursively for all its descendants.
         Input:
@@ -214,6 +214,13 @@ class DirectedAcyclicGraphMapper:
     def generateAllVariableMappings(self,
                                     number_of_variables,
                                     max_depth=float("inf")):
+        """
+        This function generates all possible variable mappings for all
+        the source graphs that can be generated for the current dag.
+        To generate the source subgraphs it calls the function
+        generateSourceSubgraphs and to generate all the possible mapping for
+        each source subgraph it calls the function generateVariableMapping
+        """
         # Get the source subgraphs
         source_subgraphs = self.generateSourceSubgraphs(max_depth)
 
