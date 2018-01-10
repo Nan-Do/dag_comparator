@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from datastructures import DirectedAcyclicSubgraph
 from utils import stringifyGraph
 
 
@@ -128,7 +129,8 @@ class DirectedAcyclicGraphMapper:
                 nodes = filter(lambda x: (node_successors[x] - depth) <= max_depth,
                                node_successors.iterkeys())
 
-            solutions.add(((node,) + tuple(nodes), node))
+            subgraph = DirectedAcyclicSubgraph(node, ((node,) + tuple(nodes)))
+            solutions.add(subgraph)
             depth += 1
 
             for child in self.dag.links[node]:
@@ -254,15 +256,15 @@ class DirectedAcyclicGraphMapper:
 
         # For each subgraph get all valid combination of variables that we
         # can set up to number_of_variables
-        for (source_subgraph, source_root) in source_subgraphs:
+        for subgraph in source_subgraphs:
             # print source_subgraph, source_root
             # If the graph is composed by just one node it doesn't
             # return anything
-            for combination in self.generateVariableMappings(source_root,
+            for combination in self.generateVariableMappings(subgraph.root,
                                                              number_of_variables,
-                                                             source_subgraph):
+                                                             subgraph.nodes):
                 # Print the string version of the graph
                 print stringifyGraph(self.dag,
-                                     source_root,
+                                     subgraph.root,
                                      combination,
-                                     source_subgraph)
+                                     subgraph.nodes)
