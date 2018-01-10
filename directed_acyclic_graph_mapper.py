@@ -49,7 +49,7 @@ class DirectedAcyclicGraphMapper:
                     temp_dict[node] = depth
 
         next_antecessors = antecessors.union(node)
-        for child in self.dag.graph[node]:
+        for child in self.dag.links[node]:
             self.__buildSuccessors(child,
                                    depth + 1,
                                    next_antecessors,
@@ -131,7 +131,7 @@ class DirectedAcyclicGraphMapper:
             solutions.add(((node,) + tuple(nodes), node))
             depth += 1
 
-            for child in self.dag.graph[node]:
+            for child in self.dag.links[node]:
                 frontier.append((child, depth))
 
         return solutions
@@ -157,7 +157,7 @@ class DirectedAcyclicGraphMapper:
 
         reachable = set()
 
-        frontier = list(self.dag.graph[self.dag.root])
+        frontier = list(self.dag.links[self.dag.root])
         while frontier:
             node = frontier.pop()
 
@@ -165,7 +165,7 @@ class DirectedAcyclicGraphMapper:
                 continue
 
             reachable.add(node)
-            frontier.extend(self.dag.graph[node])
+            frontier.extend(self.dag.links[node])
 
         return reachable
 
@@ -191,11 +191,11 @@ class DirectedAcyclicGraphMapper:
         if total_number_of_variables <= 0:
             raise ValueError("Incorrect number of variables to assign")
         # Root not belonging to the graph
-        if starting_node not in self.dag.graph:
+        if starting_node not in self.dag.links:
             raise ValueError("The root does not belong to the graph")
 
         if initial_nodes is None:
-            initial_nodes = set(self.dag.graph.iterkeys())
+            initial_nodes = set(self.dag.links.iterkeys())
         else:
             initial_nodes = set(initial_nodes)
 
@@ -226,7 +226,7 @@ class DirectedAcyclicGraphMapper:
                     # process it. If we don't stop the recursion by controlling
                     # the father we get incorrect solutions.
                     if not len(new_selectable) or \
-                       node not in self.dag.graph[father]:
+                       node not in self.dag.links[father]:
                         continue
 
                     frontier.append((new_selectable,

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
@@ -22,9 +24,9 @@ if __name__ == '__main__':
     # print getSelectableNodes("ced", root, graph)
     # print dag_mapper.generateVariableMappings(dag_mapper.root, 2)
     # print dag_mapper.generateSourceSubgraphs(2)
-    dag_mapper.generateAllVariableMappings(1, 1)
-    # print stringifyGraph(root, graph, "a")
-    # successors = defaultdict(tuple)
-    # BuildSuccessors(root, graph, set(), successors)
+    # dag_mapper.generateAllVariableMappings(1, 1)
+    # successors = defaultdict(dict)
+    # dag_mapper._DirectedAcyclicGraphMapper__buildSuccessors('b', 0, set(), successors)
     # print successors
-    # print map(sorted, generateSubGraphsDagWithRoot(root, graph))
+    dag_mapper.generateAllVariableMappings(3, 2)
+    # print dag_mapper.generateSourceSubgraphs(0)
