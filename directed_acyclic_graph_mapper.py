@@ -56,6 +56,12 @@ class DirectedAcyclicGraphMapper:
                                    successors)
 
     def __get_minimum_distance_from_root(self, node, successors):
+        """
+        This functions returns the minium distance between a node and the root
+        of the dag.
+
+        The distances are precomputed on the successors param
+        """
         if node == self.dag.root:
             return 0
 
@@ -112,7 +118,7 @@ class DirectedAcyclicGraphMapper:
             node, depth = frontier.pop()
             # If the current depth is bigger than the minimum length required
             # to reach it from the root we are dealing with an alternative
-            # longer path that can lead to incorrect answers
+            # longer path that can lead to incorrect answers so just skip it.
             if depth > self.__get_minimum_distance_from_root(node, successors):
                 continue
             # Get the nodes that are below the requested depth
