@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from datastructures import DirectedAcyclicSubgraph
+from datastructures import DirectedAcyclicSubgraphWithVariables
 from utils import stringifyGraph
 
 
@@ -239,7 +240,8 @@ class DirectedAcyclicGraphMapper:
 
     def generateAllVariableMappings(self,
                                     number_of_variables,
-                                    max_depth=float("inf")):
+                                    max_depth=float("inf"),
+                                    printMapppings=False):
         """
         This function generates all possible variable mappings for all
         the source subgraphs that can be generated for the dag.
@@ -251,6 +253,9 @@ class DirectedAcyclicGraphMapper:
         each source subgraph it calls the function generateVariableMappings
         """
 
+        # Store the solutions
+        solutions = list()
+
         # Get the source subgraphs
         source_subgraphs = self.generateSourceSubgraphs(max_depth)
 
@@ -260,11 +265,18 @@ class DirectedAcyclicGraphMapper:
             # print source_subgraph, source_root
             # If the graph is composed by just one node it doesn't
             # return anything
-            for combination in self.generateVariableMappings(subgraph.root,
-                                                             number_of_variables,
-                                                             subgraph.nodes):
+            for variables in self.generateVariableMappings(subgraph.root,
+                                                           number_of_variables,
+                                                           subgraph.nodes):
                 # Print the string version of the graph
-                print stringifyGraph(self.dag,
-                                     subgraph.root,
-                                     combination,
-                                     subgraph.nodes)
+                if printMapppings:
+                    print stringifyGraph(self.dag,
+                                         subgraph.root,
+                                         variables,
+                                         subgraph.nodes)
+
+                solutions.append(DirectedAcyclicSubgraphWithVariables(self.dag,
+                                                                      subgraph,
+                                                                      variables))
+
+        return solutions
