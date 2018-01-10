@@ -239,7 +239,7 @@ class DirectedAcyclicGraphMapper:
         return solutions
 
     def generateAllVariableMappings(self,
-                                    number_of_variables,
+                                    number_of_variables=float("inf"),
                                     max_depth=float("inf"),
                                     printMapppings=False):
         """
