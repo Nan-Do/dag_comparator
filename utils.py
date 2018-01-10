@@ -19,14 +19,14 @@ def stringifyGraph(dag, node, variables=[], available_nodes=[]):
     # Check if the current node is marked as variable
     if node in variables:
         graph_string = "?x" + str(variables.index(node)) + "|"
-        if len(dag.graph[node]):
+        if len(dag.links[node]):
             graph_string += node
         return graph_string
 
-    if len(dag.graph[node]):
+    if len(dag.links[node]):
         graph_string = "( " + node + " "
         children = []
-        for child in dag.graph[node]:
+        for child in dag.links[node]:
             if available_nodes and child not in available_nodes:
                 continue
             children.append(stringifyGraph(dag,
