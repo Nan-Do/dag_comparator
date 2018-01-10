@@ -268,11 +268,6 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
         self.dag2 = DirectedAcyclicGraph(root, graph)
         self.dag_mapper2 = DirectedAcyclicGraphMapper(self.dag2)
 
-    def test_sourceSubgraphsFromGraph1Depth0(self):
-        self.assertRaises(ValueError,
-                          self.dag_mapper1.generateSourceSubgraphs,
-                          0)
-
     def test_sourceSubgraphsFromGraph1NegativeDepth(self):
         self.assertRaises(ValueError,
                           self.dag_mapper1.generateSourceSubgraphs,
@@ -284,6 +279,14 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
                          (('b', 'c', 'e', 'd'), 'b')])
 
         subgraphs = self.dag_mapper1.generateSourceSubgraphs()
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph1Depth0(self):
+        solutions = set([(('a',), 'a'), (('e',), 'e'), (('d',), 'd'),
+                         (('c',), 'c'), (('b',), 'b')])
+
+        subgraphs = self.dag_mapper1.generateSourceSubgraphs(0)
 
         self.assertEquals(solutions, subgraphs)
 
@@ -305,11 +308,6 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
 
         self.assertEquals(solutions, subgraphs)
 
-    def test_sourceSubgraphsFromGraph2Depth0(self):
-        self.assertRaises(ValueError,
-                          self.dag_mapper2.generateSourceSubgraphs,
-                          0)
-
     def test_sourceSubgraphsFromGraph2NegativeDepth(self):
         self.assertRaises(ValueError,
                           self.dag_mapper2.generateSourceSubgraphs,
@@ -320,6 +318,13 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
                          (('c',), 'c')])
 
         subgraphs = self.dag_mapper2.generateSourceSubgraphs()
+
+        self.assertEquals(solutions, subgraphs)
+
+    def test_sourceSubgraphsFromGraph2Depth0(self):
+        solutions = set([(('a',), 'a'), (('c',), 'c'), (('b',), 'b')])
+
+        subgraphs = self.dag_mapper2.generateSourceSubgraphs(0)
 
         self.assertEquals(solutions, subgraphs)
 
