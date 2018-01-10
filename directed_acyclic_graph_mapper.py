@@ -55,7 +55,15 @@ class DirectedAcyclicGraphMapper:
                                    next_antecessors,
                                    successors)
 
-    # TODO: Check the input with max_depth=0
+    def __get_minimum_distance_from_root(self, node, successors):
+        if node == self.dag.root:
+            return 0
+
+        if node in successors[self.dag.root]:
+            return successors[self.dag.root][node]
+
+        return -1
+
     def generateSourceSubgraphs(self, max_depth=float("inf")):
         """
         This function generates all the source subgraphs required to put all
@@ -89,7 +97,7 @@ class DirectedAcyclicGraphMapper:
         """
 
         # Check that the provided depth is a positive integer
-        if max_depth <= 0:
+        if max_depth < 0:
             raise ValueError("The depth has to be a positive integer")
 
         # We need a set as in a DAG one node can be reached by more than one
@@ -102,6 +110,11 @@ class DirectedAcyclicGraphMapper:
         frontier = [(self.dag.root, 0)]
         while len(frontier):
             node, depth = frontier.pop()
+            # If the current depth is bigger than the minimum length required
+            # to reach it from the root we are dealing with an alternative
+            # longer path that can lead to incorrect answers
+            if depth > self.__get_minimum_distance_from_root(node, successors):
+                continue
             # Get the nodes that are below the requested depth
             nodes = tuple()
             if successors[node]:
@@ -237,12 +250,12 @@ class DirectedAcyclicGraphMapper:
         # can set up to number_of_variables
         for (source_subgraph, source_root) in source_subgraphs:
             # print source_subgraph, source_root
-            # So far if the graph is composed by just one node it doesn't
-            # retur anything
+            # If the graph is composed by just one node it doesn't
+            # return anything
             for combination in self.generateVariableMappings(source_root,
                                                              number_of_variables,
                                                              source_subgraph):
-                # So far print the string version of the graph
+                # Print the string version of the graph
                 print stringifyGraph(self.dag,
                                      source_root,
                                      combination,
