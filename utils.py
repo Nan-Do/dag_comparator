@@ -41,3 +41,22 @@ def stringifyGraph(dag, node, variables=[], available_nodes=[]):
         graph_string = node
 
     return graph_string
+
+
+def t_cost_function(s1, s2):
+    max_len = len(s1)
+    max_dist = ord('z') - ord('a')
+
+    if len(s2) > len(s1):
+        max_len = len(s2)
+
+    s = abs(len(s1) - len(s2)) * max_dist
+    s += sum(map(lambda x: abs(ord(x[0].lower()) -
+                               ord(x[1].lower())),
+                 zip(sorted(s1), sorted(s2))))
+
+    return 1.0 - (s / float(max_len * max_dist))
+
+
+if __name__ == '__main__':
+    print t_cost_function(['A', 'B', 'C'], ['a', 'l'])
