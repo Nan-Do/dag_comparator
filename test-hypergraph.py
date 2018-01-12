@@ -27,19 +27,19 @@ class TestHypergraph(unittest.TestCase):
     def test_addNode2(self):
         self.a.addNode('a', 1)
         self.a.addNode('b', 2)
-        
+
         self.assertEqual(self.a.getNodeValue('a'), 1)
         self.assertEqual(self.a.getNodeValue('b'), 2)
- 
+
     def test_addNode3(self):
         self.a.addNode('a', 1)
         self.a.addNode('b', 2)
         self.a.addNode('c', 3)
-        
+
         self.assertEqual(self.a.getNodeValue('a'), 1)
         self.assertEqual(self.a.getNodeValue('b'), 2)
         self.assertEqual(self.a.getNodeValue('c'), 3)
-        
+
     def test_updateNodeValue(self):
         self.a.addNode('a', 1)
         self.a.addNode('b', 2)
@@ -47,18 +47,18 @@ class TestHypergraph(unittest.TestCase):
         self.a.updateNode('a', 3)
 
         self.assertEqual(self.a.getNodeValue('a'), 3)
-        
+
     def test_addHyperedge1(self):
         he = ('a', 'b', 'c')
 
         self.a.addNode('a', 1)
         self.a.addNode('b', 2)
         self.a.addNode('c', 3)
-        
+
         self.a.addHyperedge(he, "abc")
 
         self.assertEqual(self.a.getHyperedgeLabel(he), "abc")
- 
+
     def test_addHyperedge2(self):
         he = ('a', 'b', 'c')
         he2 = ('d', 'b', 'c')
@@ -67,7 +67,7 @@ class TestHypergraph(unittest.TestCase):
         self.a.addNode('b', 2)
         self.a.addNode('c', 3)
         self.a.addNode('d', 4)
-        
+
         self.a.addHyperedge(he, "abc")
         self.a.addHyperedge(he2, "dbc")
 
@@ -82,7 +82,7 @@ class TestHypergraph(unittest.TestCase):
         self.a.addNode('b', 2)
         self.a.addNode('c', 3)
         self.a.addNode('d', 4)
-        
+
         self.a.addHyperedge(he, "abc")
         self.a.addHyperedge(he2, "dbc")
 
@@ -101,15 +101,11 @@ class TestHypergraph(unittest.TestCase):
         self.a.addNode('b', 2)
         self.a.addNode('c', 3)
         self.a.addNode('d', 4)
-        
+
         self.a.addHyperedge(he, "abc")
         self.a.addHyperedge(he2, "dbc")
 
         self.assertEqual(self.a.getHyperedgesFromNode('b'), solution)
-
-
- 
-
 
 
 if __name__ == '__main__':
