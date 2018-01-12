@@ -58,5 +58,19 @@ def t_cost_function(s1, s2):
     return 1.0 - (s / float(max_len * max_dist))
 
 
+def radix_sort_by_num_of_variables(v):
+    max_num_of_variables = 0
+
+    for x in v:
+        if len(x.variables) > max_num_of_variables:
+            max_num_of_variables = len(x.variables)
+    answers = tuple([[] for _ in xrange(max_num_of_variables)])
+
+    for x in v:
+        answers[len(x.variables)-1].append(x)
+
+    return answers
+
+
 if __name__ == '__main__':
     print t_cost_function(['A', 'B', 'C'], ['a', 'l'])
