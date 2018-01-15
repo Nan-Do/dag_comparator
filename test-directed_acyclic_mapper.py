@@ -1,6 +1,6 @@
 import unittest
 
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
@@ -274,36 +274,36 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
                           -1)
 
     def test_sourceSubgraphsFromGraph1MaxDepth(self):
-        solutions = set([('a', ('a', 'c', 'b', 'e', 'd')), ('e', ('e',)),
-                         ('d', ('d',)), ('c', ('c', 'e')),
-                         ('b', ('b', 'c', 'e', 'd'))])
+        solutions = deque([('e', ('e',)), ('d', ('d',)), ('c', ('c', 'e')),
+                           ('b', ('b', 'c', 'e', 'd')),
+                           ('a', ('a', 'c', 'b', 'e', 'd'))])
 
         subgraphs = self.dag_mapper1.generateSourceSubgraphs()
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph1Depth0(self):
-        solutions = set([('a', ('a',)), ('e', ('e',)), ('d', ('d',)),
-                         ('c', ('c',)), ('b', ('b',))])
+        solutions = deque([('e', ('e',)), ('d', ('d',)),
+                           ('c', ('c',)), ('b', ('b',)), ('a', ('a',))])
 
         subgraphs = self.dag_mapper1.generateSourceSubgraphs(0)
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph1Depth1(self):
-        solutions = set([('a', ('a', 'c', 'b', 'd')), ('e', ('e',)),
-                         ('d', ('d',)), ('c', ('c', 'e')),
-                         ('b', ('b', 'c', 'd'))])
+        solutions = deque([('e', ('e',)), ('d', ('d',)), ('c', ('c', 'e')),
+                           ('b', ('b', 'c', 'd')),
+                           ('a', ('a', 'c', 'b', 'd'))])
 
         subgraphs = self.dag_mapper1.generateSourceSubgraphs(1)
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph1Depth2(self):
-        solutions = set([('a', ('a', 'c', 'b', 'e', 'd')), ('e', ('e',)),
-                         ('d', ('d',)), ('c', ('c', 'e')),
-                         ('b', ('b', 'c', 'e', 'd'))])
-
+        solutions = deque([('e', ('e',)), ('d', ('d',)), ('c', ('c', 'e')),
+                           ('b', ('b', 'c', 'e', 'd')),
+                           ('a', ('a', 'c', 'b', 'e', 'd'))])
+  
         subgraphs = self.dag_mapper1.generateSourceSubgraphs(2)
 
         self.assertEquals(solutions, subgraphs)
@@ -314,31 +314,31 @@ class testGenerateSourceSubgraphs(unittest.TestCase):
                           -101)
 
     def test_sourceSubgraphsFromGraph2MaxDepth(self):
-        solutions = set([('a', ('a', 'c', 'b')), ('b', ('b',)),
-                         ('c', ('c',))])
+        solutions = deque([('c', ('c',)), ('b', ('b',)),
+                           ('a', ('a', 'c', 'b'))])
 
         subgraphs = self.dag_mapper2.generateSourceSubgraphs()
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph2Depth0(self):
-        solutions = set([('a', ('a',)), ('b', ('b',)), ('c', ('c',))])
+        solutions = deque([('c', ('c',)), ('b', ('b',)), ('a', ('a',))])
 
         subgraphs = self.dag_mapper2.generateSourceSubgraphs(0)
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph2Depth1(self):
-        solutions = set([('a', ('a', 'c', 'b')), ('b', ('b',)),
-                         ('c', ('c',))])
+        solutions = deque([('c', ('c',)), ('b', ('b',)),
+                           ('a', ('a', 'c', 'b'))])
 
         subgraphs = self.dag_mapper2.generateSourceSubgraphs(1)
 
         self.assertEquals(solutions, subgraphs)
 
     def test_sourceSubgraphsFromGraph2Depth2(self):
-        solutions = set([('a', ('a', 'c', 'b')), ('b', ('b',)),
-                         ('c', ('c',))])
+        solutions = deque([('c', ('c',)), ('b', ('b',)),
+                           ('a', ('a', 'c', 'b'))])
 
         subgraphs = self.dag_mapper2.generateSourceSubgraphs(2)
 

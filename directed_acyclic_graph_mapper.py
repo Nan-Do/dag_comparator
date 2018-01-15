@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from datastructures import DirectedAcyclicSubgraph
 from datastructures import DirectedAcyclicSubgraphWithVariables
@@ -90,6 +90,9 @@ class DirectedAcyclicGraphMapper:
         subgraphs formed by its children using the children node as the root
         for the new subgraph.
 
+        Due to the requirements of the algorithm the subgraphs must be returned
+        in an ascending order from the leafs.
+
         Ex:
                a
               / \
@@ -97,11 +100,11 @@ class DirectedAcyclicGraphMapper:
               | |
               d e
         Returns:
-           [a, b, c, d, e]
-           [b, d]
-           [c, e]
            [d]
            [e]
+           [b, d]
+           [c, e]
+           [a, b, c, d, e]
         """
 
         # Check that the provided depth is a positive integer
@@ -110,18 +113,21 @@ class DirectedAcyclicGraphMapper:
 
         # We need a set as in a DAG one node can be reached by more than one
         # path and therefore there could be duplicates, using a set avoid that.
-        solutions = set()
+        solutions = deque()
+        frontier = deque()
+        processed_roots = set()
         successors = defaultdict(dict)
 
         self.__buildSuccessors(self.dag.root, 0, set(), successors)
 
-        frontier = [(self.dag.root, 0)]
+        frontier.append((self.dag.root, 0))
         while len(frontier):
-            node, depth = frontier.pop()
+            node, depth = frontier.popleft()
             # If the current depth is bigger than the minimum length required
             # to reach it from the root we are dealing with an alternative
             # longer path that can lead to incorrect answers so just skip it.
-            if depth > self.__get_minimum_distance_from_root(node, successors):
+            if depth > self.__get_minimum_distance_from_root(node, successors)\
+               or node in processed_roots:
                 continue
             # Get the nodes that are below the requested depth
             nodes = tuple()
@@ -130,8 +136,11 @@ class DirectedAcyclicGraphMapper:
                 nodes = filter(lambda x: (node_successors[x] - depth) <= max_depth,
                                node_successors.iterkeys())
 
-            subgraph = DirectedAcyclicSubgraph(node, ((node,) + tuple(nodes)))
-            solutions.add(subgraph)
+            if node not in processed_roots:
+                subgraph = DirectedAcyclicSubgraph(node, ((node,) +
+                                                          tuple(nodes)))
+                solutions.appendleft(subgraph)
+                processed_roots.add(node)
             depth += 1
 
             for child in self.dag.links[node]:
