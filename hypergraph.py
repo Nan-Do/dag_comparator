@@ -26,14 +26,14 @@ class Hypergraph:
     def addNode(self, node, value):
         """
         This function adds a node to the hypergraph.
-        If the node already exists it updates its value
+        If the node already exists it raises an exeception.
         Node -> The node of the hypergraph must be inmutable.
         Value -> The value associated with the node.
         """
         if node not in self.nodes:
             self.nodes[node] = NodeData(value, list())
         else:
-            self.nodes[node].value = value
+            raise ValueError("The node already exists on the hypergraph")
 
     def updateNode(self, node, value):
         """
@@ -46,6 +46,13 @@ class Hypergraph:
             raise ValueError("The node doesn't exists on the hypergraph")
 
         self.nodes[node].value = value
+
+    def containsNode(self, node):
+        """
+        This function checks if the node exist on the hypergraph.
+        Node -> The node of the hypergraph must be inmutable.
+        """
+        return node in self.nodes
 
     def getNodeValue(self, node):
         """
@@ -62,9 +69,9 @@ class Hypergraph:
     def addHyperedge(self, hyperedge, label):
         """
         This function adds a hyperedges to the hypergraph. If it already exists
-        it updates its associated label.
-        hyperedges -> a tuple of nodes if a node doesn't exists it raises an
-                      exception.
+        it raises an exception.
+        hyperedge -> a tuple of nodes if a node doesn't exists it raises an
+                     exception.
         label -> The data associated with the hyperedges.
         """
         if hyperedge not in self.hyperedges:
@@ -79,8 +86,18 @@ class Hypergraph:
                 self.nodes[node].hyperedges.append(current_position)
 
             self.positions_to_hyperedges[current_position] = hyperedge
+        else:
+            raise ValueError("The hyperedge already exists on the hypergraph")
 
         self.hyperedges[hyperedge] = label
+
+    def containsHyperedge(self, hyperedge):
+        """
+        This function checks if the hyperedge exist on the hypergraph.
+        hyperedge -> a tuple of nodes if a node doesn't exists it raises an
+                     exception.
+        """
+        return hyperedge in self.hyperedges
 
     def getHyperedgeLabel(self, hyperedge):
         """
@@ -119,3 +136,9 @@ class Hypergraph:
             hyperedges.append(self.positions_to_hyperedges[hyperedge_position])
 
         return hyperedges
+
+    def printNodes(self):
+        i = 1
+        for node, v in self.nodes.iteritems():
+            print i, node, v.value
+            i += 1
