@@ -8,6 +8,8 @@ from utils import stringifyGraph
 from utils import t_cost_function
 from utils import radix_sort_by_num_of_variables
 
+from utils import DEBUG_MODE
+
 
 class DirectedAcyclicGraphComparator:
     """
@@ -76,16 +78,17 @@ class DirectedAcyclicGraphComparator:
                                                             map2.variables))
 
                 # This is for debuging pourposes
-                print stringifyGraph(map1.graph,
-                                     map1.subgraph.root,
-                                     map1.variables,
-                                     map1.subgraph.nodes)
-                print stringifyGraph(map2.graph,
-                                     map2.subgraph.root,
-                                     map2.variables,
-                                     map2.subgraph.nodes)
+                if DEBUG_MODE:
+                    print stringifyGraph(map1.graph,
+                                         map1.subgraph.root,
+                                         map1.variables,
+                                         map1.subgraph.nodes)
+                    print stringifyGraph(map2.graph,
+                                         map2.subgraph.root,
+                                         map2.variables,
+                                         map2.subgraph.nodes)
 
-                print 'Hyperedge', hyperedge
+                    print 'Hyperedge', hyperedge
 
                 # Check if the hyperedge doesn't exist and add it
                 # to the hypergrah in that case
@@ -97,7 +100,8 @@ class DirectedAcyclicGraphComparator:
                 # Obtain the accumulated value for the variables involved on
                 # the substitution.
                 for n1, n2 in zip(map1.variables, map2.variables):
-                    print 'Querying:', n1, n2
+                    if DEBUG_MODE:
+                        print 'Querying:', n1, n2
                     total_from_variables += self.hypergraph.getNodeValue((n1,
                                                                           n2))
 
@@ -108,8 +112,11 @@ class DirectedAcyclicGraphComparator:
                     self.hypergraph.updateNode(hypergraph_node,
                                                (f1 + total_from_variables))
 
-                print f1, total_from_variables
-                print "=========================="
+                if DEBUG_MODE:
+                    print 'Partial graph value', f1
+                    print 'Variables value', total_from_variables
+                    print "=========================="
 
-        self.hypergraph.printNodes()
-        self.hypergraph.printHyperedges()
+        if DEBUG_MODE:
+            self.hypergraph.printNodes()
+            self.hypergraph.printHyperedges()

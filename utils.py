@@ -1,3 +1,8 @@
+# This is meant to be a global variable that indicates that the rest
+# of the app should show the debugging data
+DEBUG_MODE = True
+
+
 def stringifyGraph(dag, node, variables=[], available_nodes=[]):
     """
     This function creates a s expression given a graph specified as
