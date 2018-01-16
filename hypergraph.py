@@ -142,3 +142,9 @@ class Hypergraph:
         for node, v in self.nodes.iteritems():
             print i, node, v.value
             i += 1
+
+    def printHyperedges(self):
+        i = 1
+        for hyperedge, label in self.hyperedges.iteritems():
+            print i, hyperedge, label
+            i += 1
