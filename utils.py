@@ -63,7 +63,7 @@ def t_cost_function(s1, s2):
     return 1.0 - (s / float(max_len * max_dist))
 
 
-def radix_sort_by_num_of_variables(v):
+def sort_by_num_of_variables(v):
     max_num_of_variables = 0
 
     for x in v:

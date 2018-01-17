@@ -6,7 +6,7 @@ from hypergraph import Hypergraph
 
 from utils import stringifyGraph
 from utils import t_cost_function
-from utils import radix_sort_by_num_of_variables
+from utils import sort_by_num_of_variables
 
 from utils import DEBUG_MODE
 
@@ -59,9 +59,9 @@ class DirectedAcyclicGraphComparator:
         # two subgraphs with different number of variables. Here
         # we sort both sequences of subgraphs by its number of variables to
         # assure that doesn't happen.
-        map1_sorted_by_vars = radix_sort_by_num_of_variables(
+        map1_sorted_by_vars = sort_by_num_of_variables(
             self.dag1_mapper.generateAllVariableMappings())
-        map2_sorted_by_vars = radix_sort_by_num_of_variables(
+        map2_sorted_by_vars = sort_by_num_of_variables(
             self.dag2_mapper.generateAllVariableMappings())
 
         # Thanks to its ordering coming from the Mapper class the hypergraph
