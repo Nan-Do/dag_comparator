@@ -1,6 +1,6 @@
 # This is meant to be a global variable that indicates that the rest
 # of the app should show the debugging data
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 
 def stringifyGraph(dag, node, variables=[], available_nodes=[]):
