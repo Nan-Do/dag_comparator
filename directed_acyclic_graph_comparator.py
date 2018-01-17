@@ -137,5 +137,9 @@ class DirectedAcyclicGraphComparator:
                 print "=========================="
 
         if DEBUG_MODE:
+            print "\nNodes:"
+            print "=========================="
             self.hypergraph.printNodes()
+            print "\nHyperedges:"
+            print "=========================="
             self.hypergraph.printHyperedges()
