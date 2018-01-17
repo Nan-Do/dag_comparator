@@ -1,5 +1,3 @@
-from itertools import chain
-
 from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 
 from hypergraph import Hypergraph
