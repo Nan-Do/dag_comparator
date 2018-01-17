@@ -6,7 +6,6 @@ from hypergraph import Hypergraph
 
 from utils import stringifyGraph
 from utils import t_cost_function
-from utils import sort_by_num_of_variables
 
 from utils import DEBUG_MODE
 
@@ -31,6 +30,19 @@ class DirectedAcyclicGraphComparator:
 
     def costAssembler(self, functions):
         pass
+
+    def __sort_by_num_of_variables(self, v):
+        max_num_of_variables = 0
+
+        for x in v:
+            if len(x.variables) > max_num_of_variables:
+                max_num_of_variables = len(x.variables)
+        answers = tuple([[] for _ in xrange(max_num_of_variables)])
+
+        for x in v:
+            answers[len(x.variables)-1].append(x)
+
+        return answers
 
     def __iterate_over_sorted_maps(self, s1, s2):
         for x1, x2 in zip(s1, s2):
@@ -59,9 +71,9 @@ class DirectedAcyclicGraphComparator:
         # two subgraphs with different number of variables. Here
         # we sort both sequences of subgraphs by its number of variables to
         # assure that doesn't happen.
-        map1_sorted_by_vars = sort_by_num_of_variables(
+        map1_sorted_by_vars = self.__sort_by_num_of_variables(
             self.dag1_mapper.generateAllVariableMappings())
-        map2_sorted_by_vars = sort_by_num_of_variables(
+        map2_sorted_by_vars = self.__sort_by_num_of_variables(
             self.dag2_mapper.generateAllVariableMappings())
 
         # Thanks to its ordering coming from the Mapper class the hypergraph
