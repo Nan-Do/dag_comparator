@@ -110,20 +110,15 @@ class DirectedAcyclicGraphComparator:
                 total_from_variables += self.hypergraph.getNodeValue((n1,
                                                                       n2))
 
-            # Check if the hyperedge doesn't exist and if that
-            # is the case add it to the hypergrah.
+            # Add the hyperedge to the graph
+            # The hyperedges are directed and as the algorithm works
+            # there should't be any duplicates so there is no need to
+            # check if it exists.
             hyperedge_label = ((map1.subgraph,
                                 map2.subgraph),
                                total_from_variables)
-            if not self.hypergraph.containsHyperedge(hyperedge):
-                self.hypergraph.addHyperedge(hyperedge, hyperedge_label)
+            self.hypergraph.addHyperedge(hyperedge, hyperedge_label)
 
-            elif total_from_variables > \
-                    self.hypergraph.getHyperedgeLabel(hyperedge)[1]:
-                self.hypergraph.updateHyperedgeLabel(hyperedge,
-                                                     hyperedge_label)
-
-            # Check if with the values we have computed we have to update
             # Check if with the values we have computed we have to update
             # value of the node.
             if (f1 + total_from_variables) > \
