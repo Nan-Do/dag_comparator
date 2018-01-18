@@ -1,4 +1,5 @@
 from collections import defaultdict
+import cPickle as pickle
 
 
 class NodeData:
@@ -148,3 +149,32 @@ class Hypergraph:
         for hyperedge, label in self.hyperedges.iteritems():
             print i, hyperedge, label
             i += 1
+
+    def saveToFile(self, filename):
+        f = file(filename, "w+")
+        pickle.dump(self, f)
+        f.close()
+
+    @staticmethod
+    def loadFromFile(filename):
+        f = file(filename, "r")
+        hypergraph = pickle.load(f)
+        f.close()
+        return hypergraph
+
+    def enumerateWaysFromNode(self, node):
+        solutions = []
+        frontier = filter(lambda x: x[0] == node,
+                          self.hyperedges.iterkeys())
+
+        while frontier:
+            current = frontier.pop()
+            successors = filter(lambda x: x[0] == current,
+                                self.hyperedges.iterkeys())
+
+            if len(successors) == 0:
+                solutions.append(current)
+            else:
+                frontier.extend(successors)
+
+        return solutions
