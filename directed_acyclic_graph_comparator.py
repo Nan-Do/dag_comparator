@@ -30,11 +30,7 @@ class DirectedAcyclicGraphComparator:
         pass
 
     def __sort_by_num_of_variables(self, v):
-        max_num_of_variables = 0
-
-        for x in v:
-            if len(x.variables) > max_num_of_variables:
-                max_num_of_variables = len(x.variables)
+        max_num_of_variables = max(map(lambda x: len(x.variables), v))
         answers = tuple([[] for _ in xrange(max_num_of_variables)])
 
         for x in v:
