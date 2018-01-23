@@ -163,23 +163,6 @@ class Hypergraph:
         f.close()
         return hypergraph
 
-    def enumerateWaysFromNode(self, node):
-        solutions = []
-        frontier = filter(lambda x: x[0] == node,
-                          self.hyperedges.iterkeys())
-
-        while frontier:
-            current = frontier.pop()
-            successors = filter(lambda x: x[0] == current,
-                                self.hyperedges.iterkeys())
-
-            if len(successors) == 0:
-                solutions.append(current)
-            else:
-                frontier.extend(successors)
-
-        return solutions
-
 if __name__ == '__main__':
     h = Hypergraph.loadFromFile('hypergraph.dat')
     h.printNodes()
