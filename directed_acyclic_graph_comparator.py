@@ -23,7 +23,8 @@ class DirectedAcyclicGraphComparator:
                     nodes of the hyperedges will contain the location of the
                     variables. As a value it will store the sum of the cost of
                     the variables plus applying the transformation function to
-                    the graphs without the nodes being substituted
+                    the graphs without the nodes being substituted. Each
+                    hyperedge must be different.
     """
     def __init__(self, dag1, dag2):
         """
@@ -129,10 +130,9 @@ class DirectedAcyclicGraphComparator:
             # The hyperedges are directed and as the algorithm works
             # there should't be any duplicates so there is no need to
             # check if it exists.
-            hyperedge_label = ((map1.subgraph,
-                                map2.subgraph),
-                               f1 + total_from_variables)
-            self.hypergraph.addHyperedge(hyperedge, hyperedge_label)
+            subgraphs = (map1.subgraph, map2.subgraph)
+            weight = f1 + total_from_variables
+            self.hypergraph.addHyperedge(hyperedge, subgraphs, weight)
 
             # Check if with the values we have computed we have to update
             # value of the node.
