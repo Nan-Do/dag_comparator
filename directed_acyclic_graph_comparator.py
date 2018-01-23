@@ -14,7 +14,16 @@ class DirectedAcyclicGraphComparator:
     DirectedAcyclicGraphs
 
     To use it call the function buildHyperGraph, it will return a hypergraph
-    containing the comparision between the two dags.
+    containing the comparision between the two dags. The contents of the
+    hypergraph will be as follows:
+        nodes: formed by one node of each graph storing the value of applying
+               the cost function to both nodes.
+        hyperedges: hyperedges are directed, the first node of the hyperedge is
+                    the source node of the transformation, the rest of the
+                    nodes of the hyperedges will contain the location of the
+                    variables. As a value it will store the sum of the cost of
+                    the variables plus applying the transformation function to
+                    the graphs without the nodes being substituted
     """
     def __init__(self, dag1, dag2):
         """
