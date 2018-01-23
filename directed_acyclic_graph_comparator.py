@@ -123,8 +123,8 @@ class DirectedAcyclicGraphComparator:
             for n1, n2 in zip(map1.variables, map2.variables):
                 if DEBUG_MODE:
                     print 'Querying:', n1, n2
-                total_from_variables += self.hypergraph.getNodeValue((n1,
-                                                                      n2))
+                total_from_variables += self.hypergraph.getNodeWeight((n1,
+                                                                       n2))
 
             # Add the hyperedge to the graph
             # The hyperedges are directed and as the algorithm works

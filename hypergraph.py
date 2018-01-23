@@ -2,6 +2,7 @@ from compute_best_mappings import ComputeBestKMappings
 from collections import defaultdict, namedtuple
 import cPickle as pickle
 
+from utils import DEBUG_MODE
 
 NodeData = namedtuple("NodeData", ["weight", "hyperedges"])
 HyperedgeLabel = namedtuple("HyperedgeLabel", ["subgraphs", "weight"])
@@ -149,6 +150,10 @@ class Hypergraph:
         i = 1
         for hyperedge, label in self.hyperedges.iteritems():
             print i, hyperedge, label.weight
+            if DEBUG_MODE:
+                print "   ", label.subgraphs[0]
+                print "   ", label.subgraphs[1]
+
             i += 1
 
     def saveToFile(self, filename):
