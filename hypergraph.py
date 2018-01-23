@@ -1,11 +1,9 @@
-from collections import defaultdict
+from compute_best_mappings import ComputeBestKMappings
+from collections import defaultdict, namedtuple
 import cPickle as pickle
 
 
-class NodeData:
-    def __init__(self, value, hyperedges):
-        self.value = value
-        self.hyperedges = hyperedges
+NodeData = namedtuple("NodeData", ["value", "hyperedges"])
 
 
 class Hypergraph:
@@ -178,3 +176,8 @@ class Hypergraph:
                 frontier.extend(successors)
 
         return solutions
+
+if __name__ == '__main__':
+    h = Hypergraph.loadFromFile('hypergraph.dat')
+    h.printNodes()
+    x = ComputeBestKMappings(h, ('a', 'A'))
