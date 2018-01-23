@@ -122,15 +122,15 @@ class DirectedAcyclicGraphComparator:
             # check if it exists.
             hyperedge_label = ((map1.subgraph,
                                 map2.subgraph),
-                               total_from_variables)
+                               f1 + total_from_variables)
             self.hypergraph.addHyperedge(hyperedge, hyperedge_label)
 
             # Check if with the values we have computed we have to update
             # value of the node.
-            if (f1 + total_from_variables) > \
-               self.hypergraph.getNodeValue(hypergraph_node):
-                self.hypergraph.updateNode(hypergraph_node,
-                                           (f1 + total_from_variables))
+            # if (f1 + total_from_variables) > \
+            #    self.hypergraph.getNodeValue(hypergraph_node):
+            #     self.hypergraph.updateNode(hypergraph_node,
+            #                                (f1 + total_from_variables))
 
             if DEBUG_MODE:
                 print 'Partial graph value', f1
