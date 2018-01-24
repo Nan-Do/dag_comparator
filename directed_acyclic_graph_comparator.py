@@ -131,7 +131,8 @@ class DirectedAcyclicGraphComparator:
             # there should't be any duplicates so there is no need to
             # check if it exists.
             subgraphs = (map1.subgraph, map2.subgraph)
-            weight = f1 + total_from_variables
+            # weight = f1 + total_from_variables
+            weight = f1 
             self.hypergraph.addHyperedge(hyperedge, subgraphs, weight)
 
             # Check if with the values we have computed we have to update
