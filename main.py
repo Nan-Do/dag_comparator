@@ -3,6 +3,7 @@ from collections import defaultdict
 from datastructures import DirectedAcyclicGraph
 # from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
+from mappings_iterator import MappingsIterator
 
 if __name__ == '__main__':
     # root = "a"
@@ -149,4 +150,6 @@ if __name__ == '__main__':
     comparator.buildHyperGraph()
     # comparator.hypergraph.printNodes()
     # comparator.hypergraph.printHyperedges()
-    comparator.hypergraph.saveToFile("hypergraph.dat")
+    # comparator.hypergraph.saveToFile("hypergraph.dat")
+    mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
+    print mappings.next()

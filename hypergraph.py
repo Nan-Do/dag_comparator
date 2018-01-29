@@ -1,4 +1,3 @@
-from compute_best_mappings import ComputeBestKMappings
 from collections import defaultdict, namedtuple
 import cPickle as pickle
 
@@ -167,8 +166,3 @@ class Hypergraph:
         hypergraph = pickle.load(f)
         f.close()
         return hypergraph
-
-if __name__ == '__main__':
-    h = Hypergraph.loadFromFile('hypergraph.dat')
-    h.printNodes()
-    x = ComputeBestKMappings(h, ('a', 'A'))
