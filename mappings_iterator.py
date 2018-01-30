@@ -181,14 +181,12 @@ class MappingsIterator:
 
                 solution.extend(c)
                 counter += 1
-                # End of the generators list:
-                # Yield the computed solution and update the solution
+                # End of the generators list
                 if counter == len(continuations):
                     yield solution
-                    # Remove the last solution
-                    a = solution.pop()
-                    if a[0].continuation_node is None:
-                        solution.pop()
+                    # Remove the elements added by c
+                    solution = solution[:-len(c)]
+                    # Update the counter
                     counter -= 1
 
     def __init__(self, hypergraph, initial_node):
