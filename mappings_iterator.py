@@ -153,11 +153,15 @@ class MappingsIterator:
 
             for continuation in transition:
                 c = continuation.continuation_node
+                # If the continuation node is none we reached the base case
+                # upload the solution and finish the generator
                 if c is None:
                     yield solution
                     return
-                continuation_nodes.append(c)
+                # First batch of generators
                 continuations.append(self.__enumerate_transitions(c))
+                # Used to refresh the generators when they are consumed
+                continuation_nodes.append(c)
 
             counter = 0
             while True:
@@ -165,10 +169,10 @@ class MappingsIterator:
 
                 # We reached the end of the generator
                 if c is None:
-                    # If it is not the first generator, refresh it and
-                    # update the solution.
+                    # Not the first generator, refresh it and update the
+                    # solution.
                     if counter != 0:
-                        # Update the solutions
+                        # Update the solutions to the current transition
                         solution = [transition]
                         # Refresh the current generator
                         g = self.__enumerate_transitions(continuation_nodes[counter])
