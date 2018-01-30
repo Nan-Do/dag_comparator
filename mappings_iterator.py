@@ -146,11 +146,6 @@ class MappingsIterator:
         bactracking and generators to enumerate the possible transitions of
         the hypergraph.
         """
-        # End of the generator
-        if node is None:
-            yield []
-            return
-
         for transition in self.transitions_cache[node]:
             solution = [transition]
             continuations = []
@@ -158,6 +153,9 @@ class MappingsIterator:
 
             for continuation in transition:
                 c = continuation.continuation_node
+                if c is None:
+                    yield solution
+                    return
                 continuation_nodes.append(c)
                 continuations.append(self.__enumerate_transitions(c))
 
@@ -170,13 +168,12 @@ class MappingsIterator:
                     # If it is not the first generator, refresh it and
                     # update the solution.
                     if counter != 0:
+                        # Update the solutions
+                        solution = [transition]
                         # Refresh the current generator
                         g = self.__enumerate_transitions(continuation_nodes[counter])
                         continuations[counter] = g
-                        # Remove the last solution
-                        a = solution.pop()
-                        if a[0].continuation_node is None and len(solution):
-                            solution.pop()
+                        # Update the counter
                         counter -= 1
                         continue
 
@@ -190,7 +187,7 @@ class MappingsIterator:
                     yield solution
                     # Remove the last solution
                     a = solution.pop()
-                    if a[0].continuation_node is None and len(solution):
+                    if a[0].continuation_node is None:
                         solution.pop()
                     counter -= 1
 
