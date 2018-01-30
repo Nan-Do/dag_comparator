@@ -1,7 +1,6 @@
-from collections import defaultdict
+from datetime import datetime
 
 from datastructures import DirectedAcyclicGraph
-# from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
 from mappings_iterator import MappingsIterator
 
@@ -146,10 +145,23 @@ if __name__ == '__main__':
     }
     dag2 = DirectedAcyclicGraph(root, links)
 
+    t1 = datetime.now()
     comparator = DirectedAcyclicGraphComparator(dag1, dag2)
     comparator.buildHyperGraph()
     # comparator.hypergraph.printNodes()
     # comparator.hypergraph.printHyperedges()
     # comparator.hypergraph.saveToFile("hypergraph.dat")
     mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
-    print mappings.next()
+    best = 0
+
+    for pos, x in enumerate(mappings):
+        if pos == 0:
+            best = x
+        pass
+
+    t2 = datetime.now()
+    print "Computation finished:"
+    print " =>", pos, "total mappings generated"
+    print " => Total time: ", str((t2 - t1).total_seconds()) + "s"
+    print " => Best mapping:"
+    print best
