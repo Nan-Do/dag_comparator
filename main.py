@@ -148,6 +148,7 @@ if __name__ == '__main__':
     t1 = datetime.now()
     comparator = DirectedAcyclicGraphComparator(dag1, dag2)
     comparator.buildHyperGraph()
+    t2 = datetime.now()
     # comparator.hypergraph.printNodes()
     # comparator.hypergraph.printHyperedges()
     # comparator.hypergraph.saveToFile("hypergraph.dat")
@@ -159,9 +160,14 @@ if __name__ == '__main__':
             best = x
         pass
 
-    t2 = datetime.now()
+    t3 = datetime.now()
     print "Computation finished:"
+    print " => Hypergraph nodes: ", len(comparator.hypergraph.nodes)
+    print " => Hypergraph hyper-edges: ", len(comparator.hypergraph.hyperedges)
+    print " => Time spent building the Hypergraph (tree-tree mapping):", str((t2 - t1).total_seconds()) + "s"
     print " =>", pos, "total mappings generated"
-    print " => Total time: ", str((t2 - t1).total_seconds()) + "s"
+    print " => Total time spent generating mappings: ", str((t3 - t2).total_seconds()) + "s"
     print " => Best mapping:"
     print best
+    print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
+
