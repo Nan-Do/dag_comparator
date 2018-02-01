@@ -43,38 +43,38 @@ class testBuildHypergraph(unittest.TestCase):
 
     def test_aANodeScore(self):
         node = ('a', 'A')
-        score = 3.74
+        score = 1.0
 
         self.assertAlmostEqual(score,
-                               self.comparator.hypergraph.getNodeValue(node))
+                               self.comparator.hypergraph.getNodeWeight(node))
 
     def test_bBNodeScore(self):
         node = ('b', 'B')
         score = 1.0
 
         self.assertAlmostEqual(score,
-                               self.comparator.hypergraph.getNodeValue(node))
+                               self.comparator.hypergraph.getNodeWeight(node))
 
     def test_dDNodeScore(self):
         node = ('d', 'D')
         score = 1.0
 
         self.assertAlmostEqual(score,
-                               self.comparator.hypergraph.getNodeValue(node))
+                               self.comparator.hypergraph.getNodeWeight(node))
 
     def test_aCNodeScore(self):
         node = ('a', 'C')
-        score = 1.368
+        score = 0.92
 
         self.assertAlmostEqual(score,
-                               self.comparator.hypergraph.getNodeValue(node))
+                               self.comparator.hypergraph.getNodeWeight(node))
 
     def test_cCNodeScore(self):
         node = ('c', 'C')
-        score = 1.94
+        score = 1.0
 
         self.assertAlmostEqual(score,
-                               self.comparator.hypergraph.getNodeValue(node))
+                               self.comparator.hypergraph.getNodeWeight(node))
 
     def test_hyperedge1(self):
         hyperedge = (('a', 'A'), ('b', 'B'), ('e', 'C'))
