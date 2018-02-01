@@ -138,13 +138,12 @@ if __name__ == '__main__':
     best = None
     t2 = datetime.now()
     mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
-    for pos, x in enumerate(mappings):
-        if pos == 0:
+    for pos, x in enumerate(mappings, start=1):
+        if pos == 1:
             best = x
-        pass
     t3 = datetime.now()
     
-    print "Computation finished: (" + args.size + ")"
+    print "Computation finished: (" + args.size + " graph)"
     print " => Hypergraph nodes: ", len(comparator.hypergraph.nodes)
     print " => Hypergraph hyper-edges: ", len(comparator.hypergraph.hyperedges)
     print " => Time spent building the Hypergraph (tree-tree mapping):", str((t2 - t1).total_seconds()) + "s"
