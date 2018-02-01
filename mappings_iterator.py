@@ -1,11 +1,27 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 
+# This data type will contain the information to represent the
+# hyperedges of the hypergraph as transitions. Check the
+# function __resetStates for more information.
 TransitionData = namedtuple("TransitionData", ["continuation_nodes",
                                                "weight"])
 
-TransitionState = namedtuple("TransitionState", ["continuation_node",
-                                                 "accumulated_weight",
-                                                 "transition_weight"])
+# This data type represents a continuation, that is given a path
+# which is the next node that we can take. This node has an associated
+# value in the path. The node is represented by the continuation_node
+# which will be a node of the hypergraph and the accumulated_weight
+# will represent the associated cost in the path.
+Continuation = namedtuple("Continuation", ["continuation_node",
+                                           "accumulated_weight"])
+
+# This data type represents a Tranisition. A transition means all the
+# possible paths that we can't take given a node. The transisition has an
+# associated cost.
+# The continuations represent all the possible paths we can take The
+# continuations will be a list of lists of Continuation
+# The weight  is the associated weight with the transition.
+Transition = namedtuple("Transition", ["continuations",
+                                       "weight"])
 
 
 class MappingsIterator:
@@ -16,7 +32,7 @@ class MappingsIterator:
     the hypergraph represents. As input parameters it takes a hypergraph and
     a source node to start computing the paths
     """
-    # Kept for reference, probably slower than using sorted
+    # Kept for reference, probably slower than using sorted (Deprecated)
     def __insert_transition_sorted_by_weight(self, l, state):
         """
         Auxiliary function used to sort transitions (Deprecated).
@@ -42,25 +58,22 @@ class MappingsIterator:
         l.insert(insert_position,
                  state)
 
-    def __sort_best_transitions(self, best_transitions):
+    def __sort_continuations(self, continuations):
         """
-        Auxiliary function used to sort transitions.
+        Auxiliary function used to sort continuations.
 
-        It sorts the transitions decreasingly by the accumulated weight of the
-        continuation nodes of the transition and its associated weight.
+        It sorts the continuations decreasingly by the accumulated weight of
+        the continuation nodes of the transition and its associated weight.
         """
         computed_weights = []
-        for transition in best_transitions:
+        for continuation in continuations:
             value = sum(map(lambda x: x.accumulated_weight,
-                            transition))
-            # Each transition might have more than one continuation.
-            # For each transition we only want to add the transition
-            # weight only once
-            value += transition[0].transition_weight
+                            continuation))
             computed_weights.append(value)
 
-        sorting_list = zip(computed_weights, best_transitions)
-        return map(lambda x: x[1], sorted(sorting_list, reverse=True))
+        sorting_list = zip(computed_weights, continuations)
+        return map(lambda x: x[1], sorted(sorting_list,
+                                          reverse=True))
 
     def __resetStates(self, hypergraph):
         """
@@ -88,51 +101,51 @@ class MappingsIterator:
 
     def __build_transitions_cache(self, hypergraph, node):
         """
-        This function builds the cache for the transitions of a given hypergraph.
+        This function builds the cache of transitions for a given hypergraph
+        and node.
 
-        The transitions cache is a dictionary in which as keys we have nodes of the
-        hypergraph and as values lists of TransitionStates. The TransitionState
-        contains the transition node (the node that used to continue the path on
-        the hypergraph), its accumulated weight and the weight of the transition it
-        belongs.
-        Starting from the given node it goes to the leafes and in a bottom-up fashion
-        computes the weights associated to each possible continuation node of the
-        give node. The list of TransitionStates is sorted in a decreasing fashion.
-        Later when we enumerate the solutions we will use the fact that the possible
-        transitions are sorted to offer the best solution first.
+        The transitions cache is a dictionary in which as keys we have nodes of
+        the hypergraph and as values TransitionStates. The TransitionState
+        contains a list of continuations and its associated weight. The
+        continuations is a list of continuations. Each continuation contains
+        a continuation_node wich indicates the next step on the path and its
+        accumulated weight.
+        Starting from the given node it goes to the leafes and in a bottom-up
+        fashion computes the weights associated to each possible continuation
+        node of the give node. The list of TransitionStates is sorted in a
+        decreasing fashion. Later when we enumerate the solutions we will use
+        the fact that the possible transitions are sorted to offer the best
+        solution first.
         """
         if node in self.transitions_cache:
-            for transition in self.transitions_cache[node]:
-                yield transition
+            yield self.transitions_cache[node]
 
         if node not in self.node_transitions:
-            st = TransitionState(None,
-                                 hypergraph.getNodeWeight(node),
-                                 0)
-            # st = TransitionState(None, 0)
-            self.transitions_cache[node] = [[st]]
-            yield [st]
+            c = Continuation(None, hypergraph.getNodeWeight(node))
+            t = Transition(((c,),), 0)
+            self.transitions_cache[node] = t
+            yield t
         else:
-            sorted_transitions = []
-            for transition in self.node_transitions[node]:
-                transition_states = []
-                hyperedge = (node,) + transition.continuation_nodes
-                s = hypergraph.getHyperedgeLabel(hyperedge)
-                for transition_node in transition.continuation_nodes:
+            transition_continuations = []
+            for continuation in self.node_transitions[node]:
+                continuations = []
+                for transition_node in continuation.continuation_nodes:
                     n = self.__build_transitions_cache(hypergraph,
                                                        transition_node).next()
+                    best_continuation = n.continuations[0]
                     accumulated_weight = sum(map(lambda x: x.accumulated_weight,
-                                                 n))
-                    transition_states.append(TransitionState(transition_node,
-                                                             accumulated_weight +\
-                                                             n[0].transition_weight,
-                                                             s.weight))
-                sorted_transitions.append(transition_states)
+                                                 best_continuation))
+                    accumulated_weight += n.weight
+                    c = Continuation(transition_node, accumulated_weight)
+                    continuations.append(c)
+                transition_continuations.append(continuations)
 
-            sorted_transitions = self.__sort_best_transitions(sorted_transitions)
-            self.transitions_cache[node] = sorted_transitions
-            for transition in sorted_transitions:
-                yield transition
+            hyperedge = (node,) + continuation.continuation_nodes
+            c = self.__sort_continuations(transition_continuations)
+            t = Transition(tuple(c),
+                           hypergraph.getHyperedgeLabel(hyperedge).weight)
+            self.transitions_cache[node] = t
+            yield t
 
     # TODO: Currently it generates the best solution first and then
     # lexicografically the rest. Modify it to computed all the solutions in
@@ -144,49 +157,51 @@ class MappingsIterator:
 
         Using the previously computed transitions cache this function uses
         bactracking and generators to enumerate the possible transitions of
-        the hypergraph.
+        the hypergraph. It generates the best solution first and then the
+        rest in an topological sort.
         """
-        for transition in self.transitions_cache[node]:
-            solution = [transition]
-            continuations = []
-            continuation_nodes = []
+        # Extract the current transition
+        transition = self.transitions_cache[node]
+        for continuation in transition.continuations:
+            solution = ((continuation, transition.weight),)
+            # Build the generators
+            generators = []
+            generator_backups = []
 
-            for continuation in transition:
+            for continuation in continuation:
                 c = continuation.continuation_node
-                # If the continuation node is none we reached the base case
-                # upload the solution and finish the generator
+                # Reached the base case, yield the solution and finish the
+                # generator
                 if c is None:
                     yield solution
                     return
-                # First batch of generators
-                continuations.append(self.__enumerate_transitions(c))
+                generators.append(self.__enumerate_transitions(c))
                 # Used to refresh the generators when they are consumed
-                continuation_nodes.append(c)
+                generator_backups.append(c)
 
             counter = 0
             while True:
-                c = next(continuations[counter], None)
+                c = next(generators[counter], None)
 
-                # We reached the end of the generator
+                # Reached the end of the generator
                 if c is None:
-                    # Not the first generator, refresh it and update the
-                    # solution.
-                    if counter != 0:
-                        # Update the solutions to the current transition
-                        solution = [transition]
-                        # Refresh the current generator
-                        g = self.__enumerate_transitions(continuation_nodes[counter])
-                        continuations[counter] = g
-                        # Update the counter
-                        counter -= 1
-                        continue
+                    if counter == 0:
+                        break
 
-                    break
+                    # Update the solution
+                    solution = ((continuation, transition.weight),)
+                    # Refresh the current generator
+                    g = self.__enumerate_transitions(generator_backups[counter])
+                    generators[counter] = g
+                    # Update the counter
+                    counter -= 1
 
-                solution.extend(c)
+                    continue
+
                 counter += 1
-                # End of the generators list
-                if counter == len(continuations):
+                solution += c
+                # Reached the end of the generators list
+                if counter == len(generators):
                     yield solution
                     # Remove the elements added by c
                     solution = solution[:-len(c)]
@@ -198,7 +213,8 @@ class MappingsIterator:
         self.transitions_cache = dict()
 
         if initial_node not in self.node_transitions:
-            raise ValueError("The specified initial node doesn't start a hyperedge")
+            raise ValueError("The specified initial node doesn't start a " +
+                             "hyperedge")
 
         self.__build_transitions_cache(hypergraph, initial_node).next()
         self.generator = self.__enumerate_transitions(initial_node)
