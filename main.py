@@ -5,6 +5,7 @@ from datetime import datetime
 from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
 from mappings_iterator import MappingsIterator
+from itertools import count
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Compute the likilyhood of two directed acyclic graphs")
@@ -138,9 +139,14 @@ if __name__ == '__main__':
     best = None
     t2 = datetime.now()
     mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
-    for pos, x in enumerate(mappings, start=1):
+    for pos in count(start=1):
         if pos == 1:
-            best = x
+            best = mappings.next()
+        else:
+            try:
+                mappings.next(False)
+            except StopIteration:
+                break
     t3 = datetime.now()
     
     print "Computation finished: (" + args.size + " graph)"

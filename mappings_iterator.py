@@ -1,4 +1,5 @@
 from collections import defaultdict, namedtuple
+from copy import deepcopy
 
 # This data type will contain the information to represent the
 # hyperedges of the hypergraph as transitions. Check the
@@ -11,8 +12,16 @@ TransitionData = namedtuple("TransitionData", ["continuation_nodes",
 # value in the path. The node is represented by the continuation_node
 # which will be a node of the hypergraph and the accumulated_weight
 # will represent the associated cost in the path.
-Continuation = namedtuple("Continuation", ["continuation_node",
-                                           "accumulated_weight"])
+# Continuation = namedtuple("Continuation", ["continuation_node",
+#                                            "accumulated_weight"])
+class Continuation:
+    def __init__(self, continuation_node, accumulated_weight):
+        self.continuation_node = continuation_node
+        self.accumulated_weight = accumulated_weight
+
+    def __repr__(self):
+        return "Continuation(continuation_node=" + str(self.continuation_node) +\
+                ", acumluated_weight=" + str(self.accumulated_weight) + ")"
 
 # This data type represents a Tranisition. A transition means all the
 # possible paths that we can't take given a node. The transisition has an
@@ -168,8 +177,8 @@ class MappingsIterator:
             generators = []
             generator_backups = []
 
-            for continuation in continuation:
-                c = continuation.continuation_node
+            for c in continuation:
+                c = c.continuation_node
                 # Reached the base case, yield the solution and finish the
                 # generator
                 if c is None:
@@ -198,6 +207,14 @@ class MappingsIterator:
 
                     continue
 
+                # Update the accumulated_weight
+                # The commented out lines are in case the usage of the
+                # the named tuple instead the class is preferred.
+                # continuation_node = solution[0][0][counter].continuation_node
+                total_weight = c[0][0][0].accumulated_weight + c[0][1]
+                # solution[0][0][counter] = Continuation(continuation_node,
+                #                                        total_weight)
+                solution[0][0][counter].accumulated_weight = total_weight
                 counter += 1
                 solution += c
                 # Reached the end of the generators list
@@ -222,5 +239,11 @@ class MappingsIterator:
     def __iter__(self):
         return self
 
-    def next(self):
-        return self.generator.next()
+    def next(self, deep_copy=True):
+        a = self.generator.next()
+
+        if not deep_copy:
+            return a
+        else:
+            return deepcopy(a)
+
