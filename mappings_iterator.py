@@ -19,9 +19,15 @@ class Continuation:
         self.continuation_node = continuation_node
         self.accumulated_weight = accumulated_weight
 
+    # Pretty printing
     def __repr__(self):
         return "Continuation(continuation_node=" + str(self.continuation_node) +\
                 ", acumluated_weight=" + str(self.accumulated_weight) + ")"
+
+    # Required to pass the tests
+    def __eq__(self, other, error=0.0001):
+        return self.continuation_node == other.continuation_node and\
+                abs(self.accumulated_weight - other.accumulated_weight) < error
 
 # This data type represents a Tranisition. A transition means all the
 # possible paths that we can't take given a node. The transisition has an
