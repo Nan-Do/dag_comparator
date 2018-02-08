@@ -257,6 +257,39 @@ def generate_graph(treelevels, treelinks):
     return graph
 
 
+def generate_dag(num_of_links, treelevels, treelinks):
+    total = 0
+    while num_of_links > 0:
+        total += 1
+        if total == 100:
+            logging.warning("Unable to generate a DAG using the current tree")
+            return
+        # Get the source node
+        source_level = randint(0, len(treelevels) - 2)
+        source_block = randint(0, len(treelevels[source_level]) - 1)
+        source_position = randint(0, len(treelevels[source_level][source_block]) - 1)
+
+        # Get the destination node
+        dest_level = randint(source_level + 1, len(treelevels) - 1)
+        dest_block = randint(0, len(treelevels[dest_level]) - 1)
+        dest_position = randint(0, len(treelevels[dest_level][dest_block]) - 1)
+
+        # if dest_level == source_level + 1:
+        #     continue
+
+        graph_link = GraphLink(Position(source_level,
+                                        source_block,
+                                        source_position),
+                               Position(dest_level,
+                                        dest_block,
+                                        dest_position))
+        # Check that the link doestn't exist already
+        if graph_link in treelinks:
+            continue
+
+        treelinks.append(graph_link)
+        num_of_links -= 1
+
 def generate_dot(treelevels, treelinks, fname):
     with open(fname + '.dot', 'w') as f:
         f.write('strict digraph {\n')
@@ -297,6 +330,42 @@ def relabel_node_mutation(treelevels, node_to_be_changed, node_to_change_to):
                 index = block.index(node_to_be_changed)
                 block[index] = node_to_change_to
 
+
+def delete_branch_mutation(treelevels, treelinks, start_from_root=False):
+    if not treelinks:
+        logging.warning("No more branchs to delete")
+        return
+
+    orig_link = choice(treelinks)
+    if start_from_root:
+        root = Position(0, 0, 0)
+        orig_link = choice(filter(lambda x: x.orig == root,
+                                  treelinks))
+
+    frontier = [orig_link]
+    print "Removing branch:"
+    while frontier:
+        link = frontier.pop()
+        treelinks.remove(link)
+
+        orig = link.orig
+        dest = link.dest
+        orig_node = treelevels[orig.level][orig.block][orig.position]
+        dest_node = treelevels[dest.level][dest.block][dest.position]
+        
+        print "Removing link from node ", orig_node, "to", dest_node
+
+        # There is still a path that can reach the current dest node
+        # no need to remove its descecndants
+        if filter(lambda x: x.dest == dest, treelinks):
+            continue
+
+        # Get all the links that start on the dest node
+        links = filter(lambda x: x.orig == dest, treelinks)
+        
+        frontier.extend(links)
+
+
 if __name__ == '__main__':
     size = 25
     outdegree = 3
@@ -335,6 +404,10 @@ if __name__ == '__main__':
     parser.add_argument("--relabel", dest="relabel",
                         type=int,
                         help="Mutation that relabels one node with a label from outside the domain. This operation is repeated RELABEL times")
+
+    parser.add_argument("--delete", dest="delete",
+                        type=int,
+                        help="Mutation that deletes a branch. This operation is repeated DELETE times")
 
     args = parser.parse_args()
 
@@ -383,6 +456,17 @@ if __name__ == '__main__':
         print "Graph:"
         print treelevels, treelinks
         # print_graph(graph, treelevels)
+
+    if args.dag:
+        extra_links = 0
+        if args.dag == "sparse":
+            extra_links = len(treelevels) / 2
+        elif args.dag == "medium":
+            extra_links = len(treelevels)
+        else:
+            extra_links = len(treelevels) * 2
+
+        generate_dag(extra_links, treelevels, treelinks)
 
     mod_treelevels = deepcopy(treelevels)
     mod_treelinks = deepcopy(treelinks)
@@ -438,6 +522,11 @@ if __name__ == '__main__':
                                   node_to_be_changed,
                                   node_to_change_to)
 
+    if args.delete:
+        for _ in xrange(args.delete):
+            delete_branch_mutation(mod_treelevels,
+                                   mod_treelinks)
+
     # graph = generate_graph(treelevels, treelinks)
     generate_dot(treelevels, treelinks, 'test')
-    generate_dot(mod_treelevels, treelinks, 'test-mod')
+    generate_dot(mod_treelevels, mod_treelinks, 'test-mod')
