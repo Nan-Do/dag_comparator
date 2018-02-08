@@ -275,6 +275,28 @@ def generate_dot(treelevels, treelinks, fname):
         f.write('}')
 
 
+def swap_nodes_mutation(treelevels, orig_node, dest_node):
+    for level in treelevels:
+        for block in level:
+            if orig_node in block and dest_node in block:
+                a = block.index(orig_node)
+                b = block.index(dest_node)
+                block[a], block[b] = block[b], block[a]
+            elif orig_node in block:
+                index = block.index(orig_node)
+                block[index] = dest_node
+            elif dest_node in block:
+                index = block.index(dest_node)
+                block[index] = orig_node
+
+
+def relabel_node_mutation(treelevels, node_to_be_changed, node_to_change_to):
+    for level in treelevels:
+        for block in level:
+            if node_to_be_changed in block:
+                index = block.index(node_to_be_changed)
+                block[index] = node_to_change_to
+
 if __name__ == '__main__':
     size = 25
     outdegree = 3
@@ -305,6 +327,14 @@ if __name__ == '__main__':
                         type=str,
                         help="Specify the density of the dag, if not specified it will generate a tree",
                         choices=["sparse", "medium", "dense"])
+
+    parser.add_argument("--swap", dest="swap",
+                        type=int,
+                        help="Mutation that swaps two nodes. This operation is repeated SWAP times")
+
+    parser.add_argument("--relabel", dest="relabel",
+                        type=int,
+                        help="Mutation that relabels one node with a label from outside the domain. This operation is repeated RELABEL times")
 
     args = parser.parse_args()
 
@@ -354,5 +384,60 @@ if __name__ == '__main__':
         print treelevels, treelinks
         # print_graph(graph, treelevels)
 
+    mod_treelevels = deepcopy(treelevels)
+    mod_treelinks = deepcopy(treelinks)
+
+    if args.swap:
+        nodes = list(chain.from_iterable(chain.from_iterable(mod_treelevels)))
+        shuffle(nodes)
+        if DEBUG:
+            print "\nSwapping mutations:"
+
+        if args.swap > (len(nodes) / 2):
+            logging.warning("Specfied more swappings than the highest number possible for the current graph")
+            args.swap = len(nodes) / 2
+
+        for _ in xrange(args.swap):
+            source_node = nodes.pop()
+            dest_node = nodes.pop()
+
+            if DEBUG:
+                print "  Swapping nodes ", source_node, dest_node
+
+            swap_nodes_mutation(mod_treelevels,
+                                source_node,
+                                dest_node)
+
+    if args.relabel:
+        nodes = list(chain.from_iterable(chain.from_iterable(mod_treelevels)))
+        if DEBUG:
+            print "\nRelabeling mutations:"
+
+        if args.relabel > len(nodes):
+            logging.warning('Requesting more changes than nodes the graph contains')
+            args.relabel = len(nodes)
+
+        nodes_to_add = set(chain.from_iterable([list(ascii_lowercase),
+                                               list(ascii_uppercase),
+                                               list(digits)]))
+        nodes_to_add.symmetric_difference_update(nodes)
+
+        if len(nodes_to_add) == 0:
+            nodes_to_add = set(xrange(size+1, size+1+args.change))
+        nodes_to_add = list(nodes_to_add)
+        shuffle(nodes_to_add)
+        nodes_to_be_changed = nodes
+        shuffle(nodes_to_be_changed)
+
+        for _ in xrange(args.relabel):
+            node_to_be_changed = nodes_to_be_changed.pop()
+            node_to_change_to = nodes_to_add.pop()
+
+            print "Changing node:", node_to_be_changed, "for node", node_to_change_to
+            relabel_node_mutation(mod_treelevels,
+                                  node_to_be_changed,
+                                  node_to_change_to)
+
     # graph = generate_graph(treelevels, treelinks)
     generate_dot(treelevels, treelinks, 'test')
+    generate_dot(mod_treelevels, treelinks, 'test-mod')
