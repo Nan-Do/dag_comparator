@@ -7,8 +7,26 @@ from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
 from mappings_iterator import MappingsIterator
 from itertools import count
 
+from utils import DEBUG_MODE
+
+
+def print_info(size, comparator, pos, best, t1, t2, t3):
+    if DEBUG_MODE:
+        print "\n"
+
+    print "Computation finished: (" + size + " graph)"
+    print " => Hypergraph nodes: ", len(comparator.hypergraph.nodes)
+    print " => Hypergraph hyper-edges: ", len(comparator.hypergraph.hyperedges)
+    print " => Time spent building the Hypergraph (dag-dag mapping):", str((t2 - t1).total_seconds()) + "s"
+    print " =>", pos, "total mappings generated"
+    print " => Total time spent generating mappings: ", str((t3 - t2).total_seconds()) + "s"
+    print " => Best mapping:"
+    print best
+    print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Compute the likilyhood of two directed acyclic graphs")
+    parser = argparse.ArgumentParser(description="Compute the likelihood of two directed acyclic graphs")
     parser.add_argument("--size", dest="size",
                         default="big",
                         type=str,
@@ -132,10 +150,12 @@ if __name__ == '__main__':
         }
         dag2 = DirectedAcyclicGraph(root, links)
 
+    # Build the hypergraph
     t1 = datetime.now()
     comparator = DirectedAcyclicGraphComparator(dag1, dag2)
     comparator.buildHyperGraph()
 
+    # Enumerate all the possible mappings
     best = None
     t2 = datetime.now()
     mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
@@ -148,14 +168,7 @@ if __name__ == '__main__':
             except StopIteration:
                 break
     t3 = datetime.now()
-    
-    print "Computation finished: (" + args.size + " graph)"
-    print " => Hypergraph nodes: ", len(comparator.hypergraph.nodes)
-    print " => Hypergraph hyper-edges: ", len(comparator.hypergraph.hyperedges)
-    print " => Time spent building the Hypergraph (tree-tree mapping):", str((t2 - t1).total_seconds()) + "s"
-    print " =>", pos, "total mappings generated"
-    print " => Total time spent generating mappings: ", str((t3 - t2).total_seconds()) + "s"
-    print " => Best mapping:"
-    print best
-    print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
+
+    # Print the statistics and related information to the computation
+    print_info(args.size, comparator, pos-1, best, t1, t2, t3)
 
