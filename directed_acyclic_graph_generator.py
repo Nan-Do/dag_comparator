@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from copy import deepcopy
 from itertools import chain
 from random import choice, shuffle, normalvariate, randint
@@ -9,6 +9,9 @@ import logging
 import sys
 
 DEBUG = True
+
+Position = namedtuple('Position', ['level', 'block', 'position'])
+GraphLink = namedtuple('GraphLink', ['orig', 'dest'])
 
 
 def random_id_generator(size=6, chars=ascii_letters+digits):
@@ -52,32 +55,6 @@ def get_chunks(seq, size, step=1):
     """
     for x in xrange(0, len(seq) - size + step, step):
         yield seq[x:x+size]
-
-
-def graph_to_image(graph, filename):
-    """
-    Generate an image of a graph and store at a file.
-
-    graph -> the graph specified as a dictionary of lists.
-    filename -> the file name in which to store the image.
-
-    The picture follows the dot format
-    """
-    import networkx as nx
-    from networkx.drawing.nx_agraph import write_dot, graphviz_layout
-    import matplotlib.pyplot as plt
-
-    G = nx.DiGraph()
-    for k in graph:
-        G.add_node(k)
-        G.add_nodes_from(graph[k])
-        for v in graph[k]:
-            G.add_edge(k, v)
-
-    write_dot(G, filename + ".dot")
-    pos = graphviz_layout(G, prog='dot')
-    nx.draw(G, pos, with_labels=True, arrows=False)
-    plt.savefig(filename + ".png")
 
 
 def generate_pool_nodes(size, lower=True):
@@ -227,104 +204,75 @@ def normalize_treelevels(treelevels):
     treelevels.insert(0, root)
 
 
-def generate_tree(treelevels):
-    """
-    Generate a tree from the normalized tree levels
-
-    treelevels -> A list of lists representing the levels of a tree.
-
-    Returns a dictionary of lists
-    """
-    tree = defaultdict(list)
+def generate_treelinks(treelevels):
+    tree_links = []
 
     # Process the root
-    root = treelevels[0][0][0]
-    for x in chain.from_iterable(treelevels[1]):
-        tree[root].append(x)
+    root = Position(0, 0, 0)
+    for block, b in enumerate(treelevels[1]):
+        for position, x in enumerate(b):
+            dest = Position(1, block, position)
+            tree_links.append(GraphLink(root, dest))
 
-    # Process the leaves
-    for node in chain.from_iterable(treelevels[-1]):
-        tree[node]
+    for level, (x, y) in enumerate(get_chunks(treelevels[1:], 2), start=1):
+        election_positions = []
+        for block, b in enumerate(x):
+            for position, _ in enumerate(b):
+                election_positions.append(Position(level, block, position))
+        shuffle(election_positions)
 
-    for x, y in get_chunks(treelevels[1:], 2):
-        election_nodes = (list(chain.from_iterable(x)))
-        shuffle(election_nodes)
-
-        for node in election_nodes:
-            tree[node] = []
-        for block in y:
-            if not election_nodes:
+        for dest_block, block in enumerate(y):
+            if not election_positions:
                 logging.error("The tree levels are not normalized")
                 sys.exit(0)
 
-            orig_node = election_nodes.pop()
-            for dest_node in block:
-                tree[orig_node].append(dest_node)
+            orig_position = election_positions.pop()
+            for dest_position, node in enumerate(block):
+                dest_position = Position(level + 1,
+                                         dest_block,
+                                         dest_position)
+                tree_links.append(GraphLink(orig_position,
+                                            dest_position))
 
-    return tree
-
-
-def generate_dag(graph, num_of_links, treelevels):
-    """
-    Generate a DAG from a tree.
-
-    graph -> The tree we will use to generate the DAG.
-    num_of_links ->  The number of extra links to add to the tree.
-    treelevels -> the tree split into a list of levels
-
-    The function mutates the graph adding the new links
-    """
-    while num_of_links > 0:
-        # Get the source node
-        source_block = randint(0, len(treelevels) - 2)
-        source_node = choice(choice(treelevels[source_block]))
-
-        # Get the destination node
-        dest_block = randint(source_block+1, len(treelevels) - 1)
-        dest_node = choice(choice(treelevels[dest_block]))
-
-        # Check that the link doestn't exist already
-        if dest_node in graph[source_node]:
-            continue
-
-        graph[source_node].append(dest_node)
-        num_of_links -= 1
+    return tree_links
 
 
-def swap_nodes(graph, source_node, dest_node):
-    for nodes_list in graph.itervalues():
-        if source_node in nodes_list and dest_node in nodes_list:
-            index = nodes_list.index(source_node)
-            nodes_list.pop(index)
-            nodes_list.insert(index, dest_node)
+def generate_graph(treelevels, treelinks):
+    graph = defaultdict(list)
 
-            index = nodes_list.index(dest_node)
-            nodes_list.pop(index)
-            nodes_list.insert(index, source_node)
-        elif source_node in nodes_list:
-            index = nodes_list.index(source_node)
-            nodes_list.pop(index)
-            nodes_list.insert(index, dest_node)
-        elif dest_node in nodes_list:
-            index = nodes_list.index(dest_node)
-            nodes_list.pop(index)
-            nodes_list.insert(index, source_node)
+    for node in chain.from_iterable(chain.from_iterable(treelevels)):
+        graph[node]
 
-    temp = graph[source_node]
-    graph[source_node] = graph[dest_node]
-    graph[dest_node] = temp
+    for link in treelinks:
+        orig_position, dest_position = link
+
+        level, block, position = orig_position
+        orig_node = treelevels[level][block][position]
+
+        level, block, position = dest_position
+        dest_node = treelevels[level][block][position]
+
+        graph[orig_node].append(dest_node)
+
+    return graph
 
 
-def change_node(graph, node_to_be_changed, node_to_change_to):
-    for nodes_list in graph.itervalues():
-        if node_to_be_changed in nodes_list:
-            index = nodes_list.index(node_to_be_changed)
-            nodes_list.pop(index)
-            nodes_list.insert(index, node_to_change_to)
+def generate_dot(treelevels, treelinks, fname):
+    with open(fname + '.dot', 'w') as f:
+        f.write('strict digraph {\n')
+        for link in treelinks:
+            orig_position, dest_position = link
 
-    temp = graph[node_to_be_changed]
-    del graph[node_to_be_changed]
-    graph[node_to_change_to] = temp
+            level, block, position = orig_position
+            orig_node = treelevels[level][block][position]
+
+            level, block, position = dest_position
+            dest_node = treelevels[level][block][position]
+
+            f.write('\t{} -> {};\n'.format(orig_node,
+                                           dest_node))
+
+        f.write('}')
 
 
 if __name__ == '__main__':
@@ -357,14 +305,6 @@ if __name__ == '__main__':
                         type=str,
                         help="Specify the density of the dag, if not specified it will generate a tree",
                         choices=["sparse", "medium", "dense"])
-
-    parser.add_argument("--swap", dest="swap",
-                        type=int,
-                        help="Perturbation that swaps two nodes. This operation is repeated SWAP times")
-
-    parser.add_argument("--change", dest="change",
-                        type=int,
-                        help="Perturbation that changes one node with a label from outside the domain. This operation is repeated CHANGE  times")
 
     args = parser.parse_args()
 
@@ -408,74 +348,11 @@ if __name__ == '__main__':
             print '  ', pos, x
         print
 
-    graph = generate_tree(treelevels)
-
-    if args.dag:
-        extra_links = 0
-        if args.dag == "sparse":
-            extra_links = len(treelevels) / 2
-        elif args.dag == "medium":
-            extra_links = len(treelevels)
-        else:
-            extra_links = len(treelevels) * 2
-
-        generate_dag(graph, extra_links, treelevels)
-
+    treelinks = generate_treelinks(treelevels)
     if DEBUG:
         print "Graph:"
-        print_graph(graph, treelevels)
+        print treelevels, treelinks
+        # print_graph(graph, treelevels)
 
-    if args.image:
-        graph_to_image(graph, args.image)
-
-    mod_graph = deepcopy(graph)
-
-    if args.swap:
-        nodes_to_swap = list(mod_graph)
-        shuffle(nodes_to_swap)
-        if DEBUG:
-            print "\nGenerating swapping mutations:"
-
-        if args.swap > (len(nodes_to_swap) / 2):
-            logging.warning("Specfied more swappings than the highest number possible for the current graph")
-            args.swap = len(nodes_to_swap) / 2
-
-        for _ in xrange(args.swap):
-            source_node = nodes_to_swap.pop()
-            dest_node = nodes_to_swap.pop()
-
-            if DEBUG:
-                print "  Swapping nodes ", source_node, dest_node
-
-            swap_nodes(mod_graph, source_node, dest_node)
-
-    if args.change:
-        if DEBUG:
-            print "\nGenerating external labels mutations"
-
-        if args.change > len(graph):
-            logging.warning('Requesting more changes than nodes the graph contains')
-            args.change = len(graph)
-
-        nodes_to_add = set(chain.from_iterable([list(ascii_lowercase),
-                                               list(ascii_uppercase),
-                                               list(digits)]))
-        nodes_to_add.symmetric_difference_update(mod_graph)
-        
-        if len(nodes_to_add) == 0:
-            nodes_to_add = set(xrange(size+1, size+1+args.change))
-        nodes_to_add = list(nodes_to_add)
-        shuffle(nodes_to_add)
-        nodes_to_be_changed = list(mod_graph)
-        shuffle(nodes_to_be_changed)
-
-        for _ in xrange(args.change):
-            node_to_be_changed = nodes_to_be_changed.pop()
-            node_to_change_to = nodes_to_add.pop()
-
-            print "Changing node:", node_to_be_changed, "for node", node_to_change_to
-            change_node(mod_graph, node_to_be_changed, node_to_change_to)
-            
-    if args.image or args.change:
-        graph_to_image(mod_graph, args.image + "-mod")
-
+    # graph = generate_graph(treelevels, treelinks)
+    generate_dot(treelevels, treelinks, 'test')
