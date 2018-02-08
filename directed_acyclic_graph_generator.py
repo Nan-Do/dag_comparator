@@ -1,13 +1,26 @@
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 from random import choice, shuffle, normalvariate, randint
-from string import ascii_lowercase, ascii_uppercase, punctuation, digits
+from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
 
 import argparse
 import logging
 import sys
 
-DEBUG = False
+DEBUG = True
+
+
+def random_id_generator(size=6, chars=ascii_letters+digits):
+    """
+    Generate a random id.
+
+    size -> The size of the generated id.
+    chars -> The pool of characters to choose to generate the id.
+
+    Returns a string.
+    """
+    return ''.join(choice(chars) for _ in range(size))
 
 
 def print_graph(graph, treelevels):
@@ -15,6 +28,7 @@ def print_graph(graph, treelevels):
     Pretty printer function for the graph.
 
     graph -> graph as a dictionary of lists (adjacency lists)
+    treelevels -> a lists of lists representing the tree.
     """
     leafs = set([key for key in graph if not len(graph[key])])
     for node in chain.from_iterable(chain.from_iterable(treelevels[:-1])):
@@ -60,7 +74,7 @@ def graph_to_image(graph, filename):
         for v in graph[k]:
             G.add_edge(k, v)
 
-    write_dot(G, 'test.dot')
+    write_dot(G, filename + ".dot")
     pos = graphviz_layout(G, prog='dot')
     nx.draw(G, pos, with_labels=True, arrows=False)
     plt.savefig(filename + ".png")
@@ -73,21 +87,19 @@ def generate_pool_nodes(size, lower=True):
     size -> The size of the pool.
     lower -> Use lower or upper case letters for the pool.
 
-    Returns a string or a list.
+    Returns a list.
     """
     if lower:
-        letters = ascii_lowercase
+        letters = list(ascii_lowercase)
     else:
-        letters = ascii_uppercase
+        letters = list(ascii_uppercase)
 
     if size <= len(letters):
         return letters
     elif size <= len(letters) + len(digits):
-        return letters + digits
-    elif size <= len(letters) + len(digits) + len(punctuation):
-        return letters + digits + punctuation
+        return letters + list(digits)
     else:
-        return range(size)
+        return range(1, size)
 
 
 def generate_nodelists(nodes, num_lists, average_size, dispersion=1):
@@ -268,7 +280,7 @@ def generate_dag(graph, num_of_links, treelevels):
         source_node = choice(choice(treelevels[source_block]))
 
         # Get the destination node
-        dest_block = randint(1, len(treelevels) - 1)
+        dest_block = randint(source_block+1, len(treelevels) - 1)
         dest_node = choice(choice(treelevels[dest_block]))
 
         # Check that the link doestn't exist already
@@ -277,6 +289,42 @@ def generate_dag(graph, num_of_links, treelevels):
 
         graph[source_node].append(dest_node)
         num_of_links -= 1
+
+
+def swap_nodes(graph, source_node, dest_node):
+    for nodes_list in graph.itervalues():
+        if source_node in nodes_list and dest_node in nodes_list:
+            index = nodes_list.index(source_node)
+            nodes_list.pop(index)
+            nodes_list.insert(index, dest_node)
+
+            index = nodes_list.index(dest_node)
+            nodes_list.pop(index)
+            nodes_list.insert(index, source_node)
+        elif source_node in nodes_list:
+            index = nodes_list.index(source_node)
+            nodes_list.pop(index)
+            nodes_list.insert(index, dest_node)
+        elif dest_node in nodes_list:
+            index = nodes_list.index(dest_node)
+            nodes_list.pop(index)
+            nodes_list.insert(index, source_node)
+
+    temp = graph[source_node]
+    graph[source_node] = graph[dest_node]
+    graph[dest_node] = temp
+
+
+def change_node(graph, node_to_be_changed, node_to_change_to):
+    for nodes_list in graph.itervalues():
+        if node_to_be_changed in nodes_list:
+            index = nodes_list.index(node_to_be_changed)
+            nodes_list.pop(index)
+            nodes_list.insert(index, node_to_change_to)
+
+    temp = graph[node_to_be_changed]
+    del graph[node_to_be_changed]
+    graph[node_to_change_to] = temp
 
 
 if __name__ == '__main__':
@@ -309,7 +357,15 @@ if __name__ == '__main__':
                         type=str,
                         help="Specify the density of the dag, if not specified it will generate a tree",
                         choices=["sparse", "medium", "dense"])
- 
+
+    parser.add_argument("--swap", dest="swap",
+                        type=int,
+                        help="Perturbation that swaps two nodes. This operation is repeated SWAP times")
+
+    parser.add_argument("--change", dest="change",
+                        type=int,
+                        help="Perturbation that changes one node with a label from outside the domain. This operation is repeated CHANGE  times")
+
     args = parser.parse_args()
 
     if args.size:
@@ -322,11 +378,11 @@ if __name__ == '__main__':
         depth = args.depth
 
     # Create the node pools of each graph
-    node_pool = generate_pool_nodes(size)
+    pool_of_nodes = generate_pool_nodes(size)
 
     # Select the root
-    root = choice(node_pool)
-    pool_of_nodes = node_pool.translate(None, root)
+    root = choice(pool_of_nodes)
+    pool_of_nodes.remove(root)
 
     # Stablish the number of lists for each graph
     num_of_lists = (size - 1) / outdegree
@@ -371,4 +427,55 @@ if __name__ == '__main__':
 
     if args.image:
         graph_to_image(graph, args.image)
+
+    mod_graph = deepcopy(graph)
+
+    if args.swap:
+        nodes_to_swap = list(mod_graph)
+        shuffle(nodes_to_swap)
+        if DEBUG:
+            print "\nGenerating swapping mutations:"
+
+        if args.swap > (len(nodes_to_swap) / 2):
+            logging.warning("Specfied more swappings than the highest number possible for the current graph")
+            args.swap = len(nodes_to_swap) / 2
+
+        for _ in xrange(args.swap):
+            source_node = nodes_to_swap.pop()
+            dest_node = nodes_to_swap.pop()
+
+            if DEBUG:
+                print "  Swapping nodes ", source_node, dest_node
+
+            swap_nodes(mod_graph, source_node, dest_node)
+
+    if args.change:
+        if DEBUG:
+            print "\nGenerating external labels mutations"
+
+        if args.change > len(graph):
+            logging.warning('Requesting more changes than nodes the graph contains')
+            args.change = len(graph)
+
+        nodes_to_add = set(chain.from_iterable([list(ascii_lowercase),
+                                               list(ascii_uppercase),
+                                               list(digits)]))
+        nodes_to_add.symmetric_difference_update(mod_graph)
+        
+        if len(nodes_to_add) == 0:
+            nodes_to_add = set(xrange(size+1, size+1+args.change))
+        nodes_to_add = list(nodes_to_add)
+        shuffle(nodes_to_add)
+        nodes_to_be_changed = list(mod_graph)
+        shuffle(nodes_to_be_changed)
+
+        for _ in xrange(args.change):
+            node_to_be_changed = nodes_to_be_changed.pop()
+            node_to_change_to = nodes_to_add.pop()
+
+            print "Changing node:", node_to_be_changed, "for node", node_to_change_to
+            change_node(mod_graph, node_to_be_changed, node_to_change_to)
+            
+    if args.image or args.change:
+        graph_to_image(mod_graph, args.image + "-mod")
 
