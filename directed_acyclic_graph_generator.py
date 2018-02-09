@@ -290,6 +290,7 @@ def generate_dag(num_of_links, treelevels, treelinks):
         treelinks.append(graph_link)
         num_of_links -= 1
 
+
 def generate_dot(treelevels, treelinks, fname):
     with open(fname + '.dot', 'w') as f:
         f.write('strict digraph {\n')
@@ -331,11 +332,9 @@ def relabel_node_mutation(treelevels, node_to_be_changed, node_to_change_to):
                 block[index] = node_to_change_to
 
 
-def delete_branch_mutation(treelevels, treelinks, start_from_root=False):
+def delete_path_mutation(treelevels, treelinks, start_from_root=False):
     if not treelinks:
         logging.warning("No more branchs to delete")
-        return
-
     orig_link = choice(treelinks)
     if start_from_root:
         root = Position(0, 0, 0)
@@ -352,7 +351,7 @@ def delete_branch_mutation(treelevels, treelinks, start_from_root=False):
         dest = link.dest
         orig_node = treelevels[orig.level][orig.block][orig.position]
         dest_node = treelevels[dest.level][dest.block][dest.position]
-        
+
         print "Removing link from node ", orig_node, "to", dest_node
 
         # There is still a path that can reach the current dest node
@@ -362,28 +361,96 @@ def delete_branch_mutation(treelevels, treelinks, start_from_root=False):
 
         # Get all the links that start on the dest node
         links = filter(lambda x: x.orig == dest, treelinks)
-        
+
         frontier.extend(links)
 
 
-if __name__ == '__main__':
-    size = 25
-    outdegree = 3
-    depth = 3
+def spine_path_mutation(treelevels, treelinks, start_from_root=True):
+    orig_link = choice(treelinks)
+    if start_from_root:
+        root = Position(0, 0, 0)
+        orig_link = choice(filter(lambda x: x.orig == root,
+                                  treelinks))
 
+    orig_node = treelevels[orig_link.orig.level]\
+                          [orig_link.orig.block]\
+                          [orig_link.orig.position]
+    nodes = []
+    nodes.append(orig_node)
+
+    positions = [orig_link.orig]
+
+    print "Reordering a branch:"
+
+    frontier = [orig_link]
+    while frontier:
+        link = frontier.pop()
+
+        dest = link.dest
+        dest_node = treelevels[dest.level][dest.block][dest.position]
+        nodes.append(dest_node)
+        positions.append(dest)
+
+        # Get all the links that start on the dest node
+        links = filter(lambda x: x.orig == dest, treelinks)
+
+        if links:
+            link = choice(links)
+            frontier.append(link)
+
+    reordered_branch = list(nodes)
+    shuffle(reordered_branch)
+    print "Reordering the branch:", nodes, "to", reordered_branch
+
+    for node, p in zip(reordered_branch, positions):
+        level, block, position = p
+        treelevels[level][block][position] = node
+
+
+def reorder_block_mutation(treelevels):
+    level = randint(1, len(treelevels) - 1)
+    block = randint(0, len(treelevels[level]) - 1)
+
+    print "Reordering block", treelevels[level][block],
+    shuffle(treelevels[level][block])
+    print "reordered into ", treelevels[level][block]
+
+
+def redundancy_mutation(treelevels):
+    nodes = chain.from_iterable(chain.from_iterable(treelevels))
+    shuffle(nodes)
+    to_duplicate = nodes[0]
+    to_remove = nodes[1]
+
+    print "Duplicating node:", to_duplicate, "Removing:", to_remove
+
+    if len(to_duplicate) == 1:
+        to_duplicate += '1'
+
+    for level in treelevels:
+        for block in level:
+            if to_remove in block:
+                index = block.index(to_remove)
+                block[index] = to_duplicate
+
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Generate random acyclic directed graphs")
 
     parser.add_argument("--size", dest="size",
                         type=int,
+                        default=25,
                         help="Choose the size of the graph (default 25)")
 
     parser.add_argument("--out", dest="out",
                         type=int,
+                        default=3,
                         help="Choose the outdegree of the graph (default 3)")
 
     parser.add_argument("--depth", dest="depth",
                         type=int,
-                        help="Choose the depth of the graph")
+                        default=3,
+                        help="Choose the depth of the graph (default 3)")
 
     parser.add_argument("--upper", dest="upper", action="store_true",
                         help="Use upper case instead lower case")
@@ -399,15 +466,27 @@ if __name__ == '__main__':
 
     parser.add_argument("--swap", dest="swap",
                         type=int,
-                        help="Mutation that swaps two nodes. This operation is repeated SWAP times")
+                        help="Mutation that swaps two nodes. (Repeated SWAP times)")
 
     parser.add_argument("--relabel", dest="relabel",
                         type=int,
-                        help="Mutation that relabels one node with a label from outside the domain. This operation is repeated RELABEL times")
+                        help="Mutation that relabels one node with a label from outside the domain. (Repeated RELABEL times)")
+
+    parser.add_argument("--spine", dest="spine",
+                        type=int,
+                        help="Mutation that reorders a the nodes in a path from the root to the leafs. (Repeated REORDER times)")
+
+    parser.add_argument("--reorder", dest="reorder",
+                        type=int,
+                        help="Mutation that reorders the descecndants of a given node. (Repeated REORDER times)")
+
+    parser.add_argument("--redundancy", dest="redundancy",
+                        type=int,
+                        help="Mutation that adds redudancy to the graph by duplicating nodes. (Repeated REDUNDANCY times)")
 
     parser.add_argument("--delete", dest="delete",
                         type=int,
-                        help="Mutation that deletes a branch. This operation is repeated DELETE times")
+                        help="Mutation that deletes a branch. (Repeated DELETE times)")
 
     args = parser.parse_args()
 
@@ -522,10 +601,23 @@ if __name__ == '__main__':
                                   node_to_be_changed,
                                   node_to_change_to)
 
+    if args.redundancy:
+        for _ in xrange(args.redundancy):
+            redundancy_mutation(mod_treelevels)
+
+    if args.reorder:
+        for _ in xrange(args.reorder):
+            reorder_block_mutation(mod_treelevels)
+
+    if args.spine:
+        for _ in xrange(args.spine):
+            spine_path_mutation(mod_treelevels,
+                                mod_treelinks)
+
     if args.delete:
         for _ in xrange(args.delete):
-            delete_branch_mutation(mod_treelevels,
-                                   mod_treelinks)
+            delete_path_mutation(mod_treelevels,
+                                 mod_treelinks)
 
     # graph = generate_graph(treelevels, treelinks)
     generate_dot(treelevels, treelinks, 'test')
