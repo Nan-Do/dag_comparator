@@ -29,6 +29,18 @@ class Continuation:
         return self.continuation_node == other.continuation_node and\
                 abs(self.accumulated_weight - other.accumulated_weight) < error
 
+    # Required for compatibilty with the named tuple
+    def __getitem__(self, index):
+        if index < 0:
+            index = 2 - index
+        if index < 0 or index > 1:
+            raise IndexError("index out of range")
+
+        if index == 0:
+            return self.continuation_node
+        else:
+            return self.accumulated_weight
+
 # This data type represents a Tranisition. A transition means all the
 # possible paths that we can't take given a node. The transisition has an
 # associated cost.
