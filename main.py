@@ -19,20 +19,48 @@ def compute_best_score(best_derivation):
     return score
 
 
-def print_info(size, comparator, pos, best, t1, t2, t3):
+def print_info(comparator, best, total_transitions, t1, t2, t3):
     if DEBUG_MODE:
         print "\n"
 
-    print "Computation finished: (" + size + " graph)"
+    print "Computation finished:" 
     print " => Hypergraph nodes: ", len(comparator.hypergraph.nodes)
     print " => Hypergraph hyper-edges: ", len(comparator.hypergraph.hyperedges)
-    print " => Time spent building the Hypergraph (dag-dag mapping):", str((t2 - t1).total_seconds()) + "s"
-    print " =>", pos, "total mappings generated"
-    print " => Total time spent generating mappings: ", str((t3 - t2).total_seconds()) + "s"
+    print " => Time spent building the Hypergraph (dag-dag mapping):", \
+          str((t2 - t1).total_seconds()) + "s"
+    if total_transitions:
+        print " =>", total_transitions, "total transitions generated"
+    print " => Total time spent generating mappings: ", \
+          str((t3 - t2).total_seconds()) + "s"
     print " => Best mapping:"
     print best
     print " => Best score:", compute_best_score(best)
     print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
+
+
+def perform_execution(dag1, dag2, just_best_mapping=True):
+    # Build the hypergraph
+    t1 = datetime.now()
+    comparator = DirectedAcyclicGraphComparator(dag1, dag2)
+    comparator.buildHyperGraph()
+
+    # Enumerate all the possible mappings
+    best = None
+    t2 = datetime.now()
+    mappings = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
+    for pos in count(start=1):
+        if pos == 1:
+            best = mappings.next()
+            if just_best_mapping:
+                break
+        else:
+            try:
+                mappings.next(False)
+            except StopIteration:
+                break
+    t3 = datetime.now()
+
+    return comparator, best, t1, t2, t3
 
 
 if __name__ == '__main__':
@@ -197,27 +225,13 @@ if __name__ == '__main__':
         }
         dag2 = DirectedAcyclicGraph(root, links)
 
-    # Build the hypergraph
-    t1 = datetime.now()
-    comparator = DirectedAcyclicGraphComparator(dag1, dag2)
-    comparator.buildHyperGraph()
+    compute_just_best = True
+    if args.size:
+        compute_just_best = False
 
-    # Enumerate all the possible mappings
-    best = None
-    t2 = datetime.now()
-    mappings = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
-    for pos in count(start=1):
-        if pos == 1:
-            best = mappings.next()
-        else:
-            break
-            try:
-                mappings.next(False)
-            except StopIteration:
-                break
-    t3 = datetime.now()
+    # Perform the execution
+    comparator, best, total_transitions, t1, t2, t3 = \
+        perform_execution(dag1, dag2, compute_just_best)
 
     # Print the statistics and related information to the computation
-    args.size = ''
-    print_info(args.size, comparator, pos-1, best, t1, t2, t3)
-
+    print_info(comparator, best, t1, t2, t3)
