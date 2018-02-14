@@ -163,12 +163,12 @@ class mappingsSmallGraphTestCase(unittest.TestCase):
                               ('a', 'A'))
 
         cls.derivations = []
-        for pos, x in enumerate(it):
+        for pos, x in enumerate(it, start=1):
             cls.derivations.append(x)
         cls.number = pos
 
-    def test_ThereMustBe17Derivations(self):
-        self.assertEqual(self.number, 17)
+    def test_ThereMustBe18Derivations(self):
+        self.assertEqual(self.number, 18)
 
     def testBestScore(self):
         best = self.derivations[0]
