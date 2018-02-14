@@ -30,37 +30,42 @@ def print_info(comparator, best, total_transitions, t1, t2, t3):
           str((t2 - t1).total_seconds()) + "s"
     if total_transitions:
         print " =>", total_transitions, "total transitions generated"
-    print " => Total time spent generating mappings: ", \
+    print " => Total time spent generating transitions: ", \
           str((t3 - t2).total_seconds()) + "s"
-    print " => Best mapping:"
+    print " => Best transition:"
     print best
     print " => Best score:", compute_best_score(best)
     print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
 
 
 def perform_execution(dag1, dag2, just_best_mapping=True):
+    total_transitions = 0
+
     # Build the hypergraph
     t1 = datetime.now()
     comparator = DirectedAcyclicGraphComparator(dag1, dag2)
     comparator.buildHyperGraph()
 
-    # Enumerate all the possible mappings
+    # Enumerate all the possible transitions
     best = None
     t2 = datetime.now()
-    mappings = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
+    transitions = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
     for pos in count(start=1):
         if pos == 1:
-            best = mappings.next()
+            best = transitions.next()
             if just_best_mapping:
                 break
         else:
             try:
-                mappings.next(False)
+                transitions.next(False)
             except StopIteration:
                 break
     t3 = datetime.now()
 
-    return comparator, best, t1, t2, t3
+    if not just_best_mapping:
+        total_transitions = pos
+
+    return comparator, best, total_transitions, t1, t2, t3
 
 
 if __name__ == '__main__':
@@ -86,7 +91,6 @@ if __name__ == '__main__':
 
     dag1 = dag2 = None
 
-    print args.dag1, args.dag2
     if (args.dag1 or args.dag2) and args.size:
         print "Error::Specified both the sample graph and source files " +\
               "for them."
@@ -234,4 +238,4 @@ if __name__ == '__main__':
         perform_execution(dag1, dag2, compute_just_best)
 
     # Print the statistics and related information to the computation
-    print_info(comparator, best, t1, t2, t3)
+    print_info(comparator, best, total_transitions, t1, t2, t3)
