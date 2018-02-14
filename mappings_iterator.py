@@ -22,7 +22,7 @@ class Continuation:
     # Pretty printing
     def __repr__(self):
         return "Continuation(continuation_node=" + str(self.continuation_node) +\
-                ", acumluated_weight=" + str(self.accumulated_weight) + ")"
+                ", accumluated_weight=" + str(self.accumulated_weight) + ")"
 
     # Required to pass the tests
     def __eq__(self, other, error=0.0001):

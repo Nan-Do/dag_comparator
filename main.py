@@ -1,4 +1,6 @@
 import argparse
+import sys
+import os.path
 
 from datetime import datetime
 
@@ -8,6 +10,13 @@ from mappings_iterator import MappingsIterator
 from itertools import count
 
 from utils import DEBUG_MODE
+
+
+def compute_best_score(best_derivation):
+    b = best_derivation[0]
+    score = b[1] + sum(map(lambda x: x[1], b[0]))
+
+    return score
 
 
 def print_info(size, comparator, pos, best, t1, t2, t3):
@@ -22,19 +31,57 @@ def print_info(size, comparator, pos, best, t1, t2, t3):
     print " => Total time spent generating mappings: ", str((t3 - t2).total_seconds()) + "s"
     print " => Best mapping:"
     print best
+    print " => Best score:", compute_best_score(best)
     print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Compute the likelihood of two directed acyclic graphs")
+    parser = argparse.ArgumentParser(description="Compute the likelihood" +
+                                     " of two directed acyclic graphs")
     parser.add_argument("--size", dest="size",
-                        default="big",
                         type=str,
-                        help="Choose the size of the graphs",
+                        help="Choose the size of the sample graphs (not " +
+                             "compatible with the dag options)",
                         choices=["small", "medium", "big"])
+
+    parser.add_argument("--dag1", dest="dag1",
+                        type=str,
+                        help="Specify the file that contains the data for" +
+                             " the first dag")
+
+    parser.add_argument("--dag2", dest="dag2",
+                        type=str,
+                        help="Specify the file that contains the data for " +
+                             "the second dag")
+
     args = parser.parse_args()
 
     dag1 = dag2 = None
+
+    print args.dag1, args.dag2
+    if (args.dag1 or args.dag2) and args.size:
+        print "Error::Specified both the sample graph and source files " +\
+              "for them."
+        sys.exit(0)
+
+    if (args.dag1 and not args.dag2) or (not args.dag1 and args.dag2):
+        print "Error::Both source files must be specified in order to " +\
+              "perform the analysis"
+
+    if args.dag1:
+        path, fname = os.path.split(args.dag1)
+        fname = fname.split('.')[0]
+        sys.path.append(path)
+        d = __import__(fname)
+        dag1 = DirectedAcyclicGraph(d.root, d.links)
+
+    if args.dag2:
+        path, fname = os.path.split(args.dag2)
+        fname = fname.split('.')[0]
+        sys.path.append(path)
+        d = __import__(fname)
+        dag2 = DirectedAcyclicGraph(d.root, d.links)
+
     if args.size == "small":
         # SMALL SIZE
         root = "a"
@@ -86,7 +133,7 @@ if __name__ == '__main__':
         }
         dag2 = DirectedAcyclicGraph(root, links)
 
-    else:
+    elif args.size == "big":
         # BIG SIZE
         root = "a"
         links = {
@@ -158,11 +205,12 @@ if __name__ == '__main__':
     # Enumerate all the possible mappings
     best = None
     t2 = datetime.now()
-    mappings = MappingsIterator(comparator.hypergraph, ('a', 'A'))
+    mappings = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
     for pos in count(start=1):
         if pos == 1:
             best = mappings.next()
         else:
+            break
             try:
                 mappings.next(False)
             except StopIteration:
@@ -170,5 +218,6 @@ if __name__ == '__main__':
     t3 = datetime.now()
 
     # Print the statistics and related information to the computation
+    args.size = ''
     print_info(args.size, comparator, pos-1, best, t1, t2, t3)
 
