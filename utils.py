@@ -2,6 +2,9 @@
 # of the app should show the debugging data
 DEBUG_MODE = False
 
+SUBSTITUTION_COST = 1
+DELETION_COST = 1
+
 
 def stringifyGraph(dag, node, variables=[], available_nodes=[]):
     """
@@ -61,6 +64,23 @@ def t_cost_function(s1, s2):
                  zip(sorted(s1), sorted(s2))))
 
     return 1.0 - (s / float(max_len * max_dist))
+
+
+def t_cost_function_distance(s1, s2):
+    common_letters = 0
+
+    g = s1
+    if len(s1) > 10:
+        g = set(s1)
+
+    for l in s2:
+        if l in g:
+            common_letters += 1
+
+    l1 = len(s1) - common_letters
+    l2 = len(s2) - common_letters
+
+    return -(min(l1, l2) * SUBSTITUTION_COST + abs(l1 - l2) * DELETION_COST)
 
 if __name__ == '__main__':
     print t_cost_function(['A', 'B', 'C'], ['a', 'l'])

@@ -3,7 +3,7 @@ from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 from hypergraph import Hypergraph
 
 from utils import stringifyGraph
-from utils import t_cost_function
+from utils import t_cost_function, t_cost_function_distance
 
 from utils import DEBUG_MODE
 
@@ -68,7 +68,7 @@ class DirectedAcyclicGraphComparator:
         # of each dag.
         for n1 in self.dag1_mapper.dag.links.iterkeys():
             for n2 in self.dag2_mapper.dag.links.iterkeys():
-                value = t_cost_function([n1], [n2])
+                value = t_cost_function_distance([n1], [n2])
                 self.hypergraph.addNode((n1, n2), value)
 
         # In the algorithm we don't allow to compute the cost function between
@@ -95,8 +95,8 @@ class DirectedAcyclicGraphComparator:
             # The cost of the node of the hypergraph.
             # f1 = t_cost_function([map1.subgraph.root],
             #                      [map2.subgraph.root])
-            f1 = t_cost_function(map1.subgraph.nodes,
-                                 map2.subgraph.nodes)
+            f1 = t_cost_function_distance(map1.subgraph.nodes,
+                                          map2.subgraph.nodes)
 
             # The current hyperedge, on this implementation the order
             # matters the first node will be the node acting as a root
