@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     dag1 = dag2 = None
 
-    if not((args.dag1 or args.dag2) and args.size):
+    if not((args.dag1 and args.dag2) or args.size):
         print "Error::One method to load/generate the graphs must be specified"
         sys.exit(0)
 
