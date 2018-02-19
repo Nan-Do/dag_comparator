@@ -54,7 +54,7 @@ class DirectedAcyclicGraphComparator:
                 for map2 in x2:
                     yield (map1, map2)
 
-    def buildHyperGraph(self):
+    def buildHyperGraph(self, number_of_variables=float('inf')):
         """
         This function builds the hypergraph that will contain the comparision
         between the two dags and all its subgraphs
@@ -76,9 +76,11 @@ class DirectedAcyclicGraphComparator:
         # we sort both sequences of subgraphs by its number of variables to
         # assure that doesn't happen.
         map1_sorted_by_vars = self.__sort_by_num_of_variables(
-            self.dag1_mapper.generateAllVariableMappings())
+            self.dag1_mapper.generateAllVariableMappings(number_of_variables=
+                                                         number_of_variables))
         map2_sorted_by_vars = self.__sort_by_num_of_variables(
-            self.dag2_mapper.generateAllVariableMappings())
+            self.dag2_mapper.generateAllVariableMappings(number_of_variables=
+                                                         number_of_variables))
 
         # Thanks to its ordering coming from the Mapper class the hypergraph
         # will be built on a top down fashion.

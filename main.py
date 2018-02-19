@@ -38,13 +38,13 @@ def print_info(comparator, best, total_transitions, t1, t2, t3):
     print " => Total time spent: ", str((t3 - t1).total_seconds()) + "s"
 
 
-def perform_execution(dag1, dag2, just_best_mapping=True):
+def perform_execution(dag1, dag2, number_of_variables, just_best_mapping=True):
     total_transitions = 0
 
     # Build the hypergraph
     t1 = datetime.now()
     comparator = DirectedAcyclicGraphComparator(dag1, dag2)
-    comparator.buildHyperGraph()
+    comparator.buildHyperGraph(number_of_variables)
 
     # Enumerate all the possible transitions
     best = None
@@ -77,6 +77,13 @@ if __name__ == '__main__':
                              "compatible with the dag options)",
                         choices=["small", "medium", "big"])
 
+    parser.add_argument("--variables", dest="variables",
+                        type=int,
+                        default=10,
+                        help="Choose the maximum number of variables " +
+                             "(10 by default if the number is negative as" +
+                             "many variabes as possible)")
+
     parser.add_argument("--dag1", dest="dag1",
                         type=str,
                         help="Specify the file that contains the data for" +
@@ -103,6 +110,13 @@ if __name__ == '__main__':
     if (args.dag1 and not args.dag2) or (not args.dag1 and args.dag2):
         print "Error::Both source files must be specified in order to " +\
               "perform the analysis"
+
+    num_of_vars = 10
+    if args.variables:
+        if args.variables < 0:
+            num_of_vars = float('inf')
+        else:
+            num_of_vars = args.variables
 
     if args.dag1:
         path, fname = os.path.split(args.dag1)
@@ -239,7 +253,7 @@ if __name__ == '__main__':
 
     # Perform the execution
     comparator, best, total_transitions, t1, t2, t3 = \
-        perform_execution(dag1, dag2, compute_just_best)
+        perform_execution(dag1, dag2, num_of_vars, compute_just_best)
 
     # Print the statistics and related information to the computation
     print_info(comparator, best, total_transitions, t1, t2, t3)
