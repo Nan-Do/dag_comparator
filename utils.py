@@ -69,18 +69,35 @@ def t_cost_function(s1, s2):
 def t_cost_function_distance(s1, s2):
     common_letters = 0
 
-    g = s1
-    if len(s1) > 10:
-        g = set(s1)
-
     for l in s2:
-        if l in g:
+        if l in s1:
             common_letters += 1
 
     l1 = len(s1) - common_letters
     l2 = len(s2) - common_letters
 
     return -(min(l1, l2) * SUBSTITUTION_COST + abs(l1 - l2) * DELETION_COST)
+
+
+def t_cost_function_distance_graphs(m1, m2):
+    def reachable(g):
+        reachable = list()
+        for var in g.variables:
+            frontier = [var]
+            while frontier:
+                r = frontier.pop()
+                if r not in g.subgraph.nodes:
+                    continue
+                reachable.append(r)
+                frontier.extend(g.graph.links[r])
+
+        return reachable
+
+    s1 = reachable(m1)
+    s2 = reachable(m2)
+
+    return t_cost_function_distance(set(m1.subgraph.nodes).difference(s1),
+                                    set(m2.subgraph.nodes).difference(s2))
 
 if __name__ == '__main__':
     print t_cost_function(['A', 'B', 'C'], ['a', 'l'])
