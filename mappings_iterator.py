@@ -170,7 +170,7 @@ class MappingsIterator:
             # hyperedge = (node,) + continuation.continuation_nodes
             c = self.__sort_continuations(transition_continuations)
             continuation_nodes = map(lambda x: x.continuation_node, c[0])
-            hyperedge = (node,) + continuation_nodes
+            hyperedge = (node,) + tuple(continuation_nodes)
             t = Transition(tuple(c),
                            hypergraph.getHyperedgeLabel(hyperedge).weight)
             self.transitions_cache[node] = t
