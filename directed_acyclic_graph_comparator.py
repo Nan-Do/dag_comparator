@@ -89,15 +89,10 @@ class DirectedAcyclicGraphComparator:
                                                           map2_sorted_by_vars):
             # This variable will contain the total coming from the
             # substituted variables.
-            total_from_variables = 0.0
+            # total_from_variables = 0.0
 
             # The node of the hypergraph.
             hypergraph_node = (map1.subgraph.root, map2.subgraph.root)
-
-            # The cost of the node of the hypergraph.
-            # f1 = t_cost_function([map1.subgraph.root],
-            #                      [map2.subgraph.root])
-            f1 = t_cost_function_distance_graphs(map1, map2)
 
             # The current hyperedge, on this implementation the order
             # matters the first node will be the node acting as a root
@@ -105,6 +100,11 @@ class DirectedAcyclicGraphComparator:
             # by variables.
             hyperedge = (hypergraph_node, ) + tuple(zip(map1.variables,
                                                         map2.variables))
+
+            # The cost of the node of the hypergraph.
+            # f1 = t_cost_function([map1.subgraph.root],
+            #                      [map2.subgraph.root])
+            f1 = t_cost_function_distance_graphs(map1, map2)
 
             # This is for debuging pourposes
             if DEBUG_MODE:
@@ -121,11 +121,11 @@ class DirectedAcyclicGraphComparator:
 
             # Obtain the accumulated value for the variables involved on
             # the substitution.
-            for n1, n2 in zip(map1.variables, map2.variables):
-                if DEBUG_MODE:
-                    print 'Querying:', n1, n2
-                total_from_variables += self.hypergraph.getNodeWeight((n1,
-                                                                       n2))
+            # for n1, n2 in zip(map1.variables, map2.variables):
+            #     if DEBUG_MODE:
+            #         print 'Querying:', n1, n2
+            #     total_from_variables += self.hypergraph.getNodeWeight((n1,
+            #                                                            n2))
 
             # Add the hyperedge to the graph
             # The hyperedges are directed and as the algorithm works
@@ -143,10 +143,10 @@ class DirectedAcyclicGraphComparator:
             #     self.hypergraph.updateNode(hypergraph_node,
             #                                (f1 + total_from_variables))
 
-            if DEBUG_MODE:
-                print 'Partial graph value', f1
-                print 'Variables value', total_from_variables
-                print "=========================="
+            # if DEBUG_MODE:
+            #     print 'Partial graph value', f1
+            #     print 'Variables value', total_from_variables
+            #     print "=========================="
 
         if DEBUG_MODE:
             print "\nNodes:"
