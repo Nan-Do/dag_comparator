@@ -52,6 +52,10 @@ def stringifyGraph(dag, node, variables=[], available_nodes=[]):
 
 
 def t_cost_function(s1, s2):
+    """
+    Auxiliary cost function to use as a example to compute the difference
+    between two graphs.
+    """
     max_len = len(s1)
     max_dist = ord('z') - ord('a')
 
@@ -66,21 +70,94 @@ def t_cost_function(s1, s2):
     return 1.0 - (s / float(max_len * max_dist))
 
 
-def t_cost_function_distance(s1, s2):
-    common_letters = 0
+def t_cost_edit_distance(s1, s2):
+    """
+    Compute the edit distance between two set of nodes (each node is a
+    character)
 
-    g = s1
-    if len(s1) > 10:
-        g = set(s1)
+    The edition distance is computed as follows:
+        Compute how many nodes do we have to substitute on the first graph.
+        Compute how many nodes do we have to substitute on the second graph.
+        Compute how many nodes do we have to delete.
 
-    for l in s2:
-        if l in g:
-            common_letters += 1
+    Each change is weighted by its operation cost (1 by default).
+    """
+    g1_g2 = len(s1.difference(s2))
+    g2_g1 = len(s2.difference(s1))
 
-    l1 = len(s1) - common_letters
-    l2 = len(s2) - common_letters
+    common = len(s1.intersection(s2))
+    l1 = len(s1) - common
+    l2 = len(s1) - common
 
-    return -(min(l1, l2) * SUBSTITUTION_COST + abs(l1 - l2) * DELETION_COST)
+    return -(g1_g2 * SUBSTITUTION_COST +
+             g2_g1 * SUBSTITUTION_COST +
+             abs(l1 - l2) * DELETION_COST)
+
+
+def t_cost_edit_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
+    """
+    Compute the edit distance between two graphs without variables.
+
+    g1 -> A graph as specified on the datastructures module.
+    root_g1 -> The root node of the graph 1.
+    g2 -> A graph as specified on the datastructures module.
+    root_g2 -> The root node of the graph 2.
+
+    g1 and g2 might be bigger graphs than the one specified by their roots.
+    This is done for efficiency reasons, before computing the edit distance
+    we need to compute the graphs obtained from the roots.
+    """
+    def reachable(g, root):
+        """
+        Auxiliary function to compute the reachable graphs from the roots
+        """
+        reachable = set()
+        frontier = [root]
+        while frontier:
+            r = frontier.pop()
+            reachable.add(r)
+            frontier.extend(g.links[r])
+        return reachable
+
+    g1 = reachable(g1, root_g1)
+    g2 = reachable(g2, root_g2)
+
+    return t_cost_edit_distance(g1, g2)
+
+
+def t_cost_edit_distance_graphs_with_vars(m1, m2):
+    """
+    Compute the edit distance between two graphs with variables.
+
+    m1 -> A mapping, that is a subgraph with a set of variables
+    m2 -> A mapping, that is a subgraph with a set of variables
+
+    The subgraphs also include the descendants of the nodes in which
+    we include the variables so before we compute the edit distance
+    we have to remove them from the computation
+    """
+    def reachable(g):
+        """
+        Auxiliary function to compute the reachable nodes from the
+        variables.
+        """
+        reachable = list()
+        for var in g.variables:
+            frontier = [var]
+            while frontier:
+                r = frontier.pop()
+                if r not in g.subgraph.nodes:
+                    continue
+                reachable.append(r)
+                frontier.extend(g.graph.links[r])
+
+        return reachable
+
+    s1 = reachable(m1)
+    s2 = reachable(m2)
+
+    return t_cost_edit_distance(set(m1.subgraph.nodes).difference(s1),
+                                set(m2.subgraph.nodes).difference(s2))
 
 if __name__ == '__main__':
     print t_cost_function(['A', 'B', 'C'], ['a', 'l'])
