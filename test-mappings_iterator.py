@@ -2,7 +2,7 @@ import unittest
 
 from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
-from mappings_iterator import MappingsIterator, Continuation
+from transitions_iterator import TransitionsIterator, Continuation
 
 
 class mappingsBigGraphTestCase(unittest.TestCase):
@@ -73,7 +73,7 @@ class mappingsBigGraphTestCase(unittest.TestCase):
         comparator = DirectedAcyclicGraphComparator(dag1, dag2)
         comparator.buildHyperGraph()
 
-        it = MappingsIterator(comparator.hypergraph,
+        it = TransitionsIterator(comparator.hypergraph,
                               ('a', 'A'))
 
         cls.best = it.next()
@@ -159,7 +159,7 @@ class mappingsSmallGraphTestCase(unittest.TestCase):
         comparator = DirectedAcyclicGraphComparator(dag1, dag2)
         comparator.buildHyperGraph()
 
-        it = MappingsIterator(comparator.hypergraph,
+        it = TransitionsIterator(comparator.hypergraph,
                               ('a', 'A'))
 
         cls.derivations = []

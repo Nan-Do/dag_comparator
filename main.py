@@ -6,7 +6,7 @@ from datetime import datetime
 
 from datastructures import DirectedAcyclicGraph
 from directed_acyclic_graph_comparator import DirectedAcyclicGraphComparator
-from mappings_iterator import MappingsIterator
+from transitions_iterator import TransitionsIterator
 from itertools import count
 
 from utils import DEBUG_MODE
@@ -49,7 +49,7 @@ def perform_execution(dag1, dag2, number_of_variables, just_best_mapping=True):
     # Enumerate all the possible transitions
     best = None
     t2 = datetime.now()
-    transitions = MappingsIterator(comparator.hypergraph, (dag1.root, dag2.root))
+    transitions = TransitionsIterator(comparator.hypergraph, (dag1.root, dag2.root))
     for pos in count(start=1):
         if pos == 1:
             best = transitions.next()

@@ -51,7 +51,7 @@ Transition = namedtuple("Transition", ["continuations",
                                        "weight"])
 
 
-class MappingsIterator:
+class TransitionsIterator:
     """
     Iterator class that enumerates the possibles paths of the hypergraph.
 
