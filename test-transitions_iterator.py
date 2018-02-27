@@ -71,10 +71,9 @@ class mappingsBigGraphTestCase(unittest.TestCase):
         }
         dag2 = DirectedAcyclicGraph(root, links)
         comparator = DirectedAcyclicGraphComparator(dag1, dag2)
-        comparator.buildHyperGraph()
+        comparator.buildHyperGraphDebug()
 
-        it = TransitionsIterator(comparator.hypergraph,
-                              ('a', 'A'))
+        it = TransitionsIterator(comparator.hypergraph, ('a', 'A'))
 
         cls.best = it.next()
         cls.it = it
@@ -89,19 +88,16 @@ class mappingsBigGraphTestCase(unittest.TestCase):
     def test_firstSolution(self):
         res = ([Continuation(continuation_node=('b', 'B'), accumulated_weight=3.09021978021978), Continuation(continuation_node=('d', 'D'), accumulated_weight=2.88)], 1.0)
 
-        self.assertEqual(res,
-                         self.best[0])
+        self.assertEqual(res, self.best[0])
 
     def test_firstSolution2(self):
         res = ([Continuation(continuation_node=('j', 'C'), accumulated_weight=2.327142857142857)], 0.7630769230769231)
-        self.assertEqual(res,
-                         self.best[1])
+        self.assertEqual(res, self.best[1])
 
     def test_firstSolution3(self):
         res = ([Continuation(continuation_node=('k', 'K'), accumulated_weight=1.5899999999999999)], 0.7371428571428571)
 
-        self.assertEqual(res,
-                         self.best[2])
+        self.assertEqual(res, self.best[2])
 
     def test_firstSolutionLength(self):
         res = len(self.best)
@@ -157,10 +153,9 @@ class mappingsSmallGraphTestCase(unittest.TestCase):
         dag2 = DirectedAcyclicGraph(root, links)
 
         comparator = DirectedAcyclicGraphComparator(dag1, dag2)
-        comparator.buildHyperGraph()
+        comparator.buildHyperGraphDebug()
 
-        it = TransitionsIterator(comparator.hypergraph,
-                              ('a', 'A'))
+        it = TransitionsIterator(comparator.hypergraph, ('a', 'A'))
 
         cls.derivations = []
         for pos, x in enumerate(it, start=1):
@@ -174,8 +169,7 @@ class mappingsSmallGraphTestCase(unittest.TestCase):
         best = self.derivations[0]
         res = sum(map(lambda x: x.accumulated_weight,
                   best[0][0])) + best[0][1]
-        self.assertAlmostEqual(res,
-                               3.8)
+        self.assertAlmostEqual(res, 3.8)
 
     def testBestScoreIsGreaterThanLastOne(self):
         best = self.derivations[0]

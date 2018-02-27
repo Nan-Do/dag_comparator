@@ -3,6 +3,7 @@ from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 from hypergraph import Hypergraph
 
 from utils import stringifyGraph
+from utils import t_cost_default
 from utils import t_cost_edit_distance_graphs_with_vars
 from utils import t_cost_edit_distance_graphs_no_vars
 
@@ -160,3 +161,33 @@ class DirectedAcyclicGraphComparator:
             print "\nHyperedges:"
             print "=========================="
             self.hypergraph.printHyperedges()
+
+    def buildHyperGraphDebug(self, number_of_variables=float('inf')):
+        """
+        Debugging function that uses the default computing cost function
+        to build the hypergraph.
+
+        Used for testing purposes.
+        """
+
+        for n1 in self.dag1_mapper.dag.links.iterkeys():
+            for n2 in self.dag2_mapper.dag.links.iterkeys():
+                value = t_cost_default([n1], [n2])
+                self.hypergraph.addNode((n1, n2), value)
+
+        map1_sorted_by_vars = self.__sort_by_num_of_variables(
+            self.dag1_mapper.generateAllVariableMappings(number_of_variables=
+                                                         number_of_variables))
+        map2_sorted_by_vars = self.__sort_by_num_of_variables(
+            self.dag2_mapper.generateAllVariableMappings(number_of_variables=
+                                                         number_of_variables))
+
+        for map1, map2 in self.__iterate_over_sorted_maps(map1_sorted_by_vars,
+                                                          map2_sorted_by_vars):
+            hypergraph_node = (map1.subgraph.root, map2.subgraph.root)
+            hyperedge = (hypergraph_node, ) + tuple(zip(map1.variables,
+                                                        map2.variables))
+            weight = t_cost_default(map1.subgraph.nodes, map2.subgraph.nodes)
+
+            subgraphs = (map1.subgraph, map2.subgraph)
+            self.hypergraph.addHyperedge(hyperedge, subgraphs, weight)

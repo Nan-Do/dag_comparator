@@ -51,7 +51,7 @@ def stringifyGraph(dag, node, variables=[], available_nodes=[]):
     return graph_string
 
 
-def t_cost_function(s1, s2):
+def t_cost_default(s1, s2):
     """
     Auxiliary cost function to use as a example to compute the difference
     between two graphs.
