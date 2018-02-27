@@ -4,7 +4,7 @@ import cPickle as pickle
 from utils import DEBUG_MODE
 
 NodeData = namedtuple("NodeData", ["weight", "hyperedges"])
-HyperedgeLabel = namedtuple("HyperedgeLabel", ["subgraphs", "weight"])
+HyperedgeLabel = namedtuple("HyperedgeLabel", ["data", "weight"])
 
 
 class Hypergraph:
@@ -45,7 +45,8 @@ class Hypergraph:
         if node not in self.nodes:
             raise ValueError("The node doesn't exists on the hypergraph")
 
-        self.nodes[node].weight = weight
+        n = self.nodes[node]
+        self.nodes[node] = NodeData(weight, n.hyperedges)
 
     def containsNode(self, node):
         """
@@ -65,13 +66,13 @@ class Hypergraph:
 
         return self.nodes[node].weight
 
-    def addHyperedge(self, hyperedge, subgraphs, weight):
+    def addHyperedge(self, hyperedge, data, weight):
         """
         This function adds a hyperedges to the hypergraph. If it already exists
         it raises an exception.
         hyperedge -> a tuple of nodes if a node doesn't exists it raises an
                      exception.
-        subgraphs -> must be a tuple of two DirectedAcyclicGraphs
+        data -> must be a tuple of two DirectedAcyclicGraphs
         weight -> the weight of the hyperedge
         """
         if hyperedge not in self.hyperedges:
@@ -89,7 +90,7 @@ class Hypergraph:
         else:
             raise ValueError("The hyperedge already exists on the hypergraph")
 
-        self.hyperedges[hyperedge] = HyperedgeLabel(subgraphs, weight)
+        self.hyperedges[hyperedge] = HyperedgeLabel(data, weight)
 
     def containsHyperedge(self, hyperedge):
         """
@@ -111,19 +112,19 @@ class Hypergraph:
 
         return self.hyperedges[hyperedge]
 
-    def updateHyperedgeLabel(self, hyperedge, subgraphs, weight):
+    def updateHyperedgeLabel(self, hyperedge, data, weight):
         """
         This function updates the label associated with a hyperedge of the
         hyperedge. If it doesn't exists it raises an exception
         hyperedge -> a tuple of nodes if a node doesn't exists it raises an
                      exception.
-        subgraphs -> must be a tuple of two DirectedAcyclicGraphs
+        data -> must be a tuple of two DirectedAcyclicGraphs
         weight -> the weight of the hyperedge
         """
         if hyperedge not in self.hyperedges:
             raise ValueError("The hyperedge doesn't exists on the hypergraph")
 
-        self.hyperedges[hyperedge] = HyperedgeLabel(subgraphs, weight)
+        self.hyperedges[hyperedge] = HyperedgeLabel(data, weight)
 
     def getHyperedgesFromNode(self, node):
         """
@@ -150,8 +151,8 @@ class Hypergraph:
         for hyperedge, label in self.hyperedges.iteritems():
             print i, hyperedge, label.weight
             if DEBUG_MODE:
-                print "   ", label.subgraphs[0]
-                print "   ", label.subgraphs[1]
+                print "   ", label.data[0]
+                print "   ", label.data[1]
 
             i += 1
 
