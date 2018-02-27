@@ -27,7 +27,7 @@ class testBuildHypergraph(unittest.TestCase):
         dag2 = DirectedAcyclicGraph(root, links)
 
         self.comparator = DirectedAcyclicGraphComparator(dag1, dag2)
-        self.comparator.buildHyperGraph()
+        self.comparator.buildHyperGraphDebug()
 
     def test_numberOfNodes(self):
         number = 20
