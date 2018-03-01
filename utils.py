@@ -85,13 +85,8 @@ def t_cost_edit_distance(s1, s2):
     g1_g2 = len(s1.difference(s2))
     g2_g1 = len(s2.difference(s1))
 
-    common = len(s1.intersection(s2))
-    l1 = len(s1) - common
-    l2 = len(s1) - common
-
     return -(g1_g2 * SUBSTITUTION_COST +
-             g2_g1 * SUBSTITUTION_COST +
-             abs(l1 - l2) * DELETION_COST)
+             g2_g1 * SUBSTITUTION_COST)
 
 
 def t_cost_edit_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
