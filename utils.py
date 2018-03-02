@@ -78,7 +78,6 @@ def t_cost_edit_distance(s1, s2):
     The edition distance is computed as follows:
         Compute how many nodes do we have to substitute on the first graph.
         Compute how many nodes do we have to substitute on the second graph.
-        Compute how many nodes do we have to delete.
 
     Each change is weighted by its operation cost (1 by default).
     """
