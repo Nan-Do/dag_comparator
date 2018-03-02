@@ -84,8 +84,13 @@ def t_cost_edit_distance(s1, s2):
     g1_g2 = len(s1.difference(s2))
     g2_g1 = len(s2.difference(s1))
 
-    return -(g1_g2 * SUBSTITUTION_COST +
-             g2_g1 * SUBSTITUTION_COST)
+    precision = g1_g2 / len(s1)
+    recall = g2_g1 / len(s2)
+
+    result = -(g1_g2 * SUBSTITUTION_COST +
+               g2_g1 * SUBSTITUTION_COST)
+
+    return (result, precision, recall)
 
 
 def t_cost_edit_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
