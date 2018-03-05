@@ -4,8 +4,8 @@ from hypergraph import Hypergraph
 
 from utils import stringifyGraph
 from utils import t_cost_default
-from utils import t_cost_edit_distance_graphs_with_vars
-from utils import t_cost_edit_distance_graphs_no_vars
+from utils import t_cost_edges_distance_graphs_no_vars
+from utils import t_cost_edges_distance_graphs_with_vars
 
 from utils import DEBUG_MODE
 
@@ -73,8 +73,8 @@ class DirectedAcyclicGraphComparator:
         for n1 in self.dag1_mapper.dag.links.iterkeys():
             for n2 in self.dag2_mapper.dag.links.iterkeys():
                 # value = t_cost_function_distance([n1], [n2])
-                value = t_cost_edit_distance_graphs_no_vars(g1, n1,
-                                                            g2, n2)
+                value = t_cost_edges_distance_graphs_no_vars(g1, n1,
+                                                             g2, n2)
                 self.hypergraph.addNode((n1, n2), value)
 
         # In the algorithm we don't allow to compute the cost function between
@@ -110,7 +110,7 @@ class DirectedAcyclicGraphComparator:
             # The cost of the node of the hypergraph.
             # f1 = t_cost_function([map1.subgraph.root],
             #                      [map2.subgraph.root])
-            weight = t_cost_edit_distance_graphs_with_vars(map1, map2)
+            weight = t_cost_edges_distance_graphs_with_vars(map1, map2)
 
             # This is for debuging pourposes
             if DEBUG_MODE:
