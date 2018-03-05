@@ -86,11 +86,15 @@ def t_cost_edit_distance(s1, s2):
 
     precision = g1_g2 / len(s1)
     recall = g2_g1 / len(s2)
+    
+    f_score = 1
+    if precision or recall:
+        f_score = (2 * precision * recall) / (precision + recall)
 
     result = -(g1_g2 * SUBSTITUTION_COST +
                g2_g1 * SUBSTITUTION_COST)
 
-    return (result, precision, recall)
+    return result
 
 
 def t_cost_edit_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
@@ -159,4 +163,4 @@ def t_cost_edit_distance_graphs_with_vars(m1, m2):
                                 set(m2.subgraph.nodes).difference(s2))
 
 if __name__ == '__main__':
-    print t_cost_function(['A', 'B', 'C'], ['a', 'l'])
+    print t_cost_default(['A', 'B', 'C'], ['a', 'l'])

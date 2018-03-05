@@ -123,14 +123,14 @@ if __name__ == '__main__':
         fname = fname.split('.')[0]
         sys.path.append(path)
         d = __import__(fname)
-        dag1 = DirectedAcyclicGraph(d.root, d.links)
+        dag1 = DirectedAcyclicGraph(d.root, d.links, d.labels)
 
     if args.dag2:
         path, fname = os.path.split(args.dag2)
         fname = fname.split('.')[0]
         sys.path.append(path)
         d = __import__(fname)
-        dag2 = DirectedAcyclicGraph(d.root, d.links)
+        dag2 = DirectedAcyclicGraph(d.root, d.links, d.labels)
 
     if args.size == "small":
         # SMALL SIZE
@@ -142,7 +142,7 @@ if __name__ == '__main__':
             "d": tuple(""),
             "e": tuple("")
         }
-        dag1 = DirectedAcyclicGraph(root, links)
+        dag1 = DirectedAcyclicGraph(root, links, dict())
 
         root = "A"
         links = {
@@ -151,7 +151,7 @@ if __name__ == '__main__':
             "C": tuple(),
             "D": tuple()
         }
-        dag2 = DirectedAcyclicGraph(root, links)
+        dag2 = DirectedAcyclicGraph(root, links, dict())
 
     elif args.size == "medium":
         # MEDIUM SIZE
@@ -167,7 +167,7 @@ if __name__ == '__main__':
             "h": tuple(""),
             "i": tuple("")
         }
-        dag1 = DirectedAcyclicGraph(root, links)
+        dag1 = DirectedAcyclicGraph(root, links, dict())
 
         root = "A"
         links = {
@@ -181,7 +181,7 @@ if __name__ == '__main__':
             "I": tuple(""),
             "J": tuple("")
         }
-        dag2 = DirectedAcyclicGraph(root, links)
+        dag2 = DirectedAcyclicGraph(root, links, dict())
 
     elif args.size == "big":
         # BIG SIZE
@@ -214,7 +214,7 @@ if __name__ == '__main__':
             "y": tuple(""),
             "z": tuple("")
         }
-        dag1 = DirectedAcyclicGraph(root, links)
+        dag1 = DirectedAcyclicGraph(root, links, dict())
 
         root = "A"
         links = {
@@ -245,7 +245,7 @@ if __name__ == '__main__':
             "Y": tuple(""),
             "Z": tuple("")
         }
-        dag2 = DirectedAcyclicGraph(root, links)
+        dag2 = DirectedAcyclicGraph(root, links, dict())
 
     compute_just_best = True
     if args.size:

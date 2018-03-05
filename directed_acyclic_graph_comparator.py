@@ -110,7 +110,7 @@ class DirectedAcyclicGraphComparator:
             # The cost of the node of the hypergraph.
             # f1 = t_cost_function([map1.subgraph.root],
             #                      [map2.subgraph.root])
-            f1 = t_cost_edit_distance_graphs_with_vars(map1, map2)
+            weight = t_cost_edit_distance_graphs_with_vars(map1, map2)
 
             # This is for debuging pourposes
             if DEBUG_MODE:
@@ -139,7 +139,6 @@ class DirectedAcyclicGraphComparator:
             # check if it exists.
             subgraphs = (map1.subgraph, map2.subgraph)
             # weight = f1 + total_from_variables
-            weight = f1 
             self.hypergraph.addHyperedge(hyperedge, subgraphs, weight)
 
             # Check if with the values we have computed we have to update
