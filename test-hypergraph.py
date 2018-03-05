@@ -11,8 +11,7 @@ class TestHypergraph(unittest.TestCase):
         self.assertRaises(ValueError,
                           self.a.updateNode,
                           "z",
-                          2,
-                          0)
+                          2)
 
     def test_checkUnknownHyperedge(self):
         self.assertRaises(ValueError,
@@ -21,40 +20,40 @@ class TestHypergraph(unittest.TestCase):
                           2, 0)
 
     def test_addNode1(self):
-        self.a.addNode('a', 1, 0)
+        self.a.addNode('a', 1)
 
         self.assertEqual(self.a.getNodeWeight('a'), 1)
 
     def test_addNode2(self):
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
 
         self.assertEqual(self.a.getNodeWeight('a'), 1)
         self.assertEqual(self.a.getNodeWeight('b'), 2)
 
     def test_addNode3(self):
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
-        self.a.addNode('c', 3, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
+        self.a.addNode('c', 3)
 
         self.assertEqual(self.a.getNodeWeight('a'), 1)
         self.assertEqual(self.a.getNodeWeight('b'), 2)
         self.assertEqual(self.a.getNodeWeight('c'), 3)
 
     def test_updateNodeValue(self):
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
 
-        self.a.updateNode('a', 3, 0)
+        self.a.updateNode('a', 3)
 
         self.assertEqual(self.a.getNodeWeight('a'), 3)
 
     def test_addHyperedge1(self):
         he = ('a', 'b', 'c')
 
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
-        self.a.addNode('c', 3, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
+        self.a.addNode('c', 3)
 
         self.a.addHyperedge(he, "abc", 0)
 
@@ -65,10 +64,10 @@ class TestHypergraph(unittest.TestCase):
         he = ('a', 'b', 'c')
         he2 = ('d', 'b', 'c')
 
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
-        self.a.addNode('c', 3, 0)
-        self.a.addNode('d', 4, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
+        self.a.addNode('c', 3)
+        self.a.addNode('d', 4)
 
         self.a.addHyperedge(he, "abc", 0)
         self.a.addHyperedge(he2, "dbc", 0)
@@ -80,10 +79,10 @@ class TestHypergraph(unittest.TestCase):
         he = ('a', 'b', 'c')
         he2 = ('d', 'b', 'c')
 
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
-        self.a.addNode('c', 3, 0)
-        self.a.addNode('d', 4, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
+        self.a.addNode('c', 3)
+        self.a.addNode('d', 4)
 
         self.a.addHyperedge(he, "abc", 0)
         self.a.addHyperedge(he2, "dbc", 0)
@@ -97,10 +96,10 @@ class TestHypergraph(unittest.TestCase):
         he2 = ('d', 'b', 'c')
         solution = [he, he2]
 
-        self.a.addNode('a', 1, 0)
-        self.a.addNode('b', 2, 0)
-        self.a.addNode('c', 3, 0)
-        self.a.addNode('d', 4, 0)
+        self.a.addNode('a', 1)
+        self.a.addNode('b', 2)
+        self.a.addNode('c', 3)
+        self.a.addNode('d', 4)
 
         self.a.addHyperedge(he, "abc", 0)
         self.a.addHyperedge(he2, "dbc", 0)

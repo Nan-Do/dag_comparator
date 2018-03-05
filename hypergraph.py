@@ -3,7 +3,7 @@ import cPickle as pickle
 
 from utils import DEBUG_MODE
 
-NodeData = namedtuple("NodeData", ["weight", "f_score", "hyperedges"])
+NodeData = namedtuple("NodeData", ["weight", "hyperedges"])
 HyperedgeLabel = namedtuple("HyperedgeLabel", ["data", "weight"])
 
 
@@ -23,7 +23,7 @@ class Hypergraph:
         self.hyperedges = dict()
         self.positions_to_hyperedges = dict()
 
-    def addNode(self, node, weight, f_score):
+    def addNode(self, node, weight):
         """
         This function adds a node to the hypergraph.
         If the node already exists it raises an exeception.
@@ -31,11 +31,11 @@ class Hypergraph:
         Weight -> The weight associated with the node.
         """
         if node not in self.nodes:
-            self.nodes[node] = NodeData(weight, f_score, list())
+            self.nodes[node] = NodeData(weight, list())
         else:
             raise ValueError("The node already exists on the hypergraph")
 
-    def updateNode(self, node, weight, f_score):
+    def updateNode(self, node, weight):
         """
         This functions updates the weight associated with a node of
         the hypergraph. If the node doesn't exists raises an exception
@@ -46,7 +46,7 @@ class Hypergraph:
             raise ValueError("The node doesn't exists on the hypergraph")
 
         n = self.nodes[node]
-        self.nodes[node] = NodeData(weight, f_score, n.hyperedges)
+        self.nodes[node] = NodeData(weight, n.hyperedges)
 
     def containsNode(self, node):
         """
@@ -59,23 +59,12 @@ class Hypergraph:
         """
         This function returns the weight associated with a node. If the node
         doesn't exists raises an exception
-        Node -> The node of the hypergraph must be a tuple.
+        Node -> The node of the hypergraph must be inmutable.
         """
         if node not in self.nodes:
             raise ValueError("The node doesn't exists on the hypergraph")
 
         return self.nodes[node].weight
-
-    def getNodeFScore(self, node):
-        """
-        This function returns the f_score associated with a node. If the node
-        doesn't exists raises an exception
-        Node -> The node of the hypergraph must be tuple.
-        """
-        if node not in self.nodes:
-            raise ValueError("The node doesn't exists on the hypergraph")
-
-        return self.nodes[node].f_score
 
     def addHyperedge(self, hyperedge, data, weight):
         """
