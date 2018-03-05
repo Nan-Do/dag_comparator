@@ -74,24 +74,6 @@ def t_cost_default(s1, s2):
     return 1.0 - (s / float(max_len * max_dist))
 
 
-def t_cost_edit_distance(s1, s2):
-    """
-    Compute the edit distance between two set of nodes (each node is a
-    character)
-
-    The edition distance is computed as follows:
-        Compute how many nodes do we have to substitute on the first graph.
-        Compute how many nodes do we have to substitute on the second graph.
-
-    Each change is weighted by its operation cost (1 by default).
-    """
-    g1_g2 = len(s1.difference(s2))
-    g2_g1 = len(s2.difference(s1))
-
-    return -(g1_g2 * SUBSTITUTION_COST +
-             g2_g1 * SUBSTITUTION_COST)
-
-
 def t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes):
     def get_leafs(g):
         return set(map(lambda x: x[1], g.link_labels['I']))
@@ -142,7 +124,7 @@ def t_cost_edges_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
     return t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes)
 
 
-def t_cost_edges_distance_graphs_vars(m1, m2):
+def t_cost_edges_distance_graphs_with_vars(m1, m2):
     def reachable(g):
         """
         Auxiliary function to compute the reachable nodes from the
@@ -165,6 +147,24 @@ def t_cost_edges_distance_graphs_vars(m1, m2):
 
     return t_cost_edges_distance(m1.graph, set(m1.subgraph.nodes).difference(s1),
                                  m2.graph, set(m2.subgraph.nodes).difference(s2))
+
+
+def t_cost_edit_distance(s1, s2):
+    """
+    Compute the edit distance between two set of nodes (each node is a
+    character)
+
+    The edition distance is computed as follows:
+        Compute how many nodes do we have to substitute on the first graph.
+        Compute how many nodes do we have to substitute on the second graph.
+
+    Each change is weighted by its operation cost (1 by default).
+    """
+    g1_g2 = len(s1.difference(s2))
+    g2_g1 = len(s2.difference(s1))
+
+    return -(g1_g2 * SUBSTITUTION_COST +
+             g2_g1 * SUBSTITUTION_COST)
 
 
 def t_cost_edit_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
