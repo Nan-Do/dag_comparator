@@ -74,6 +74,72 @@ def t_cost_default(s1, s2):
     return 1.0 - (s / float(max_len * max_dist))
 
 
+def t_cost_default_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
+    """
+    Compute the edit distance between two graphs without variables.
+
+    g1 -> A graph as specified on the datastructures module.
+    root_g1 -> The root node of the graph 1.
+    g2 -> A graph as specified on the datastructures module.
+    root_g2 -> The root node of the graph 2.
+
+    g1 and g2 might be bigger graphs than the one specified by their roots.
+    This is done for efficiency reasons, before computing the edit distance
+    we need to compute the graphs obtained from the roots.
+    """
+    def reachable(g, root):
+        """
+        Auxiliary function to compute the reachable graphs from the roots
+        """
+        reachable = set()
+        frontier = [root]
+        while frontier:
+            r = frontier.pop()
+            reachable.add(r)
+            frontier.extend(g.links[r])
+        return reachable
+
+    g1 = reachable(g1, root_g1)
+    g2 = reachable(g2, root_g2)
+
+    return t_cost_default(g1, g2)
+
+
+def t_cost_default_distance_graphs_with_vars(m1, m2):
+    """
+    Compute the edit distance between two graphs with variables.
+
+    m1 -> A mapping, that is a subgraph with a set of variables
+    m2 -> A mapping, that is a subgraph with a set of variables
+
+    The subgraphs also include the descendants of the nodes in which
+    we include the variables so before we compute the edit distance
+    we have to remove them from the computation
+    """
+    def reachable(g):
+        """
+        Auxiliary function to compute the reachable nodes from the
+        variables.
+        """
+        reachable = list()
+        for var in g.variables:
+            frontier = [var]
+            while frontier:
+                r = frontier.pop()
+                if r not in g.subgraph.nodes:
+                    continue
+                reachable.append(r)
+                frontier.extend(g.graph.links[r])
+
+        return reachable
+
+    s1 = reachable(m1)
+    s2 = reachable(m2)
+
+    return t_cost_default(set(m1.subgraph.nodes).difference(s1),
+                          set(m2.subgraph.nodes).difference(s2))
+
+
 def t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes):
     def get_leafs(g):
         return set(map(lambda x: x[1], g.link_labels['I']))

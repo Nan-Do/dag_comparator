@@ -3,7 +3,6 @@ from directed_acyclic_graph_mapper import DirectedAcyclicGraphMapper
 from hypergraph import Hypergraph
 
 from utils import stringifyGraph
-from utils import t_cost_default
 from utils import t_cost_edges_distance_graphs_no_vars
 from utils import t_cost_edges_distance_graphs_with_vars
 
