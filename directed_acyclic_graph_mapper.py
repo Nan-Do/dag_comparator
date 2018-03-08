@@ -231,7 +231,10 @@ class DirectedAcyclicGraphMapper:
                     # To store all the possible permutations and not just a
                     # canonical combination change solutions to a list and
                     # do not sort the tuple
-                    solutions.add(tuple(sorted(solution)))
+                    solution = tuple(sorted(solution))
+                    if solution in solutions:
+                        continue
+                    solutions.add(solutions)
 
                     # If we don't have any selectable node or the current node
                     # is not a direct children of the previous father do not
