@@ -234,7 +234,7 @@ class DirectedAcyclicGraphMapper:
                     solution = tuple(sorted(solution))
                     if solution in solutions:
                         continue
-                    solutions.add(solutions)
+                    solutions.add(solution)
 
                     # If we don't have any selectable node or the current node
                     # is not a direct children of the previous father do not

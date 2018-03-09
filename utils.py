@@ -165,8 +165,9 @@ def t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes):
 
     matches = len(g1_leafs.intersection(g2_leafs))
     matches += sum(map(lambda x: min(l1[x], l2[x]), l1))
-    precision = matches / float(sum(l1.itervalues()) + len(g1_leafs))
-    recall = matches / float(sum(l2.itervalues()) + len(g2_leafs))
+    s1 = sum(l1.itervalues()); s2 = sum(l2.itervalues())
+    precision = (matches / float(s1 + len(g1_leafs))) * (len(g1_nodes) / float(len(g1.links)))
+    recall = (matches / float(s2 + len(g2_leafs))) * (len(g2_nodes) / float(len(g2.links)))
 
     return (2 * precision * recall) / (precision + recall)
 

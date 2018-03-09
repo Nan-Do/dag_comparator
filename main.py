@@ -144,10 +144,10 @@ if __name__ == '__main__':
                  'F': [],
                  }
         link_labels = {
-                       'A0': set([('x', 'y')]),
-                       'A1': set([('x', 'z')]),
-                       'I': set([('x', 'W'), ('y', 'B'), ('z', 'F')])
-                      }
+               'A0': set([('x', 'y')]),
+               'A1': set([('x', 'z')]),
+               'I': set([('x', 'W'), ('y', 'B'), ('z', 'F')])
+        }
         dag1 = DirectedAcyclicGraph(root, links, link_labels)
         root = 'a'
         links = {
@@ -159,10 +159,10 @@ if __name__ == '__main__':
                  'G': [],
                  }
         link_labels = {
-                       'A0': set([('a', 'b'), ('c', 'b')]),
-                       'A1': set([('a', 'c')]),
-                       'I': set([('a', 'W'), ('b', 'B'), ('c', 'G')])
-                      }
+               'A0': set([('a', 'b'), ('c', 'b')]),
+               'A1': set([('a', 'c')]),
+               'I': set([('a', 'W'), ('b', 'B'), ('c', 'G')])
+        }
         dag2 = DirectedAcyclicGraph(root, links, link_labels)
 
     elif args.size == "medium":
