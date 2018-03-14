@@ -85,7 +85,7 @@ class TransitionsIterator:
         l.insert(insert_position,
                  state)
 
-    def __sort_continuations(self, continuations):
+    def __sort_continuations(self, continuations, original_node, hypergraph):
         """
         Auxiliary function used to sort continuations.
 
@@ -94,9 +94,12 @@ class TransitionsIterator:
         """
         computed_weights = []
         for continuation in continuations:
+            hyperedge = (original_node,) +\
+                    tuple(map(lambda x: x.continuation_node, continuation))
             value = sum(map(lambda x: x.accumulated_weight,
                             continuation))
-            computed_weights.append(value)
+            computed_weights.append(value + 
+                                    hypergraph.getHyperedgeLabel(hyperedge).weight)
 
         sorting_list = zip(computed_weights, continuations)
         return map(lambda x: x[1], sorted(sorting_list,
@@ -167,7 +170,9 @@ class TransitionsIterator:
                     continuations.append(c)
                 transition_continuations.append(continuations)
 
-            c = self.__sort_continuations(transition_continuations)
+            c = self.__sort_continuations(transition_continuations,
+                                          node,
+                                          hypergraph)
             continuation_nodes = map(lambda x: x.continuation_node, c[0])
             hyperedge = (node,) + tuple(continuation_nodes)
             t = Transition(tuple(c),
