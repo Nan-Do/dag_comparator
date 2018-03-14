@@ -148,7 +148,7 @@ class DirectedAcyclicGraphMapper:
 
         return solutions
 
-    def __getSelectableNodes(self, available_nodes):
+    def __getSelectableNodes(self, available_nodes, selected_node):
         """
         This functions computes all the possible paths of the graph
         starting from the root and using only the nodes in available_nodes.
@@ -178,6 +178,18 @@ class DirectedAcyclicGraphMapper:
 
             reachable.add(node)
             frontier.extend(self.dag.links[node])
+
+        frontier = list(filter(lambda x: selected_node in self.dag.links[x],
+                               self.dag.links))
+        while frontier:
+            n = frontier.pop()
+            if not reachable:
+                return set()
+            if n not in reachable:
+                continue
+            reachable.remove(n)
+            frontier.extend(list(filter(lambda x: n in self.dag.links[x],
+                                        self.dag.links)))
 
         return reachable
 
@@ -226,7 +238,8 @@ class DirectedAcyclicGraphMapper:
                 for node in selectable:
                     # Get the nodes in which we can put a variable
                     new_selectable = \
-                            self.__getSelectableNodes(selectable.difference(node))
+                            self.__getSelectableNodes(selectable.difference(node),
+                                                      node)
                     solution = variables + (node,)
                     # To store all the possible permutations and not just a
                     # canonical combination change solutions to a list and
@@ -240,8 +253,10 @@ class DirectedAcyclicGraphMapper:
                     # is not a direct children of the previous father do not
                     # process it. If we don't stop the recursion by controlling
                     # the father we get incorrect solutions.
-                    if not len(new_selectable) or \
-                       node not in self.dag.links[father]:
+                    # if not len(new_selectable) or \
+                    #    node not in self.dag.links[father]:
+                    #     continue
+                    if not len(new_selectable):
                         continue
 
                     frontier.append((new_selectable,
