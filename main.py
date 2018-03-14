@@ -167,7 +167,41 @@ if __name__ == '__main__':
 
     elif args.size == "medium":
         # MEDIUM SIZE
-        raise NotImplementedError
+        root = 'w'
+        links = {
+                 'w': ['b', 'r', 'W'],
+                 'b': ['B'],
+                 'r': ['Z', 'g', 'n'],
+                 'g': ['G'],
+                 'n': ['H'],
+                 'W': [],
+                 'B': [],
+                 'G': [],
+                 'Z': [],
+                 'H': [],
+                 }
+        link_labels = {
+               'A0': set([('w', 'b'), ('r', 'g')]),
+               'A1': set([('w', 'r'), ('r', 'n')]),
+               'I': set([('w', 'W'), ('b', 'B'), ('g', 'G'),
+                         ('n', 'H'), ('r', 'Z')])
+        }
+        dag1 = DirectedAcyclicGraph(root, links, link_labels)
+        root = 'w'
+        links = {
+                 'w': ['R', 'h', 'd'],
+                 'h': ['J'],
+                 'd': ['B'],
+                 'R': [],
+                 'J': [],
+                 'B': [],
+                 }
+        link_labels = {
+               'mod': set([('w', 'h')]),
+               'domain': set([('w', 'd')]),
+               'I': set([('w', 'R'), ('h', 'H'), ('d', 'B')])
+        }
+        dag2 = DirectedAcyclicGraph(root, links, link_labels)
 
     elif args.size == "big":
         # BIG SIZE
