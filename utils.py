@@ -1,4 +1,4 @@
-from itertools import imap
+from itertools import imap, ifilter
 from collections import Counter
 from datastructures import DirectedAcyclicGraph
 
@@ -141,8 +141,10 @@ def t_cost_default_distance_graphs_with_vars(m1, m2):
 
 
 def t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes):
-    def get_leafs(g):
-        return set(map(lambda x: x[1], g.link_labels['I']))
+    def get_leafs(g, nodes):
+        return set(map(lambda x: x[1],
+                       ifilter(lambda x: x[0] in nodes and x[1] in nodes,
+                               g.link_labels['I'])))
 
     def get_type_links(g, nodes):
         results = list()
@@ -157,19 +159,16 @@ def t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes):
                         break
         return Counter(results)
 
-    g1_leafs = get_leafs(g1)
-    g2_leafs = get_leafs(g2)
+    g1_leafs = get_leafs(g1, g1_nodes)
+    g2_leafs = get_leafs(g2, g2_nodes)
 
     l1 = get_type_links(g1, g1_nodes)
     l2 = get_type_links(g2, g2_nodes)
 
     matches = len(g1_leafs.intersection(g2_leafs))
     matches += sum(map(lambda x: min(l1[x], l2[x]), l1))
-    s1 = sum(l1.itervalues()); s2 = sum(l2.itervalues())
-    precision = (matches / float(s1 + len(g1_leafs))) * (len(g1_nodes) / float(len(g1.links)))
-    recall = (matches / float(s2 + len(g2_leafs))) * (len(g2_nodes) / float(len(g2.links)))
 
-    return (2 * precision * recall) / (precision + recall)
+    return matches
 
 
 def t_cost_edges_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
