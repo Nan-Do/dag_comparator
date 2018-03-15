@@ -148,7 +148,13 @@ class TransitionsIterator:
             self.transitions_cache[node] = [t]
             yield [t]
         else:
-            transitions = []
+            # Add the option to compare whole subgraphs without variables
+            # If transitions is an empty list whole subgraphs will not be
+            # compared
+            # transitions = []
+            c = Continuation(None,
+                             hypergraph.getNodeWeight(node))
+            transitions = [Transition((c,), 0)]
             for transition in self.node_transitions[node]:
                 next_transition = []
                 for transition_node in transition.continuations:
