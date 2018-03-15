@@ -190,7 +190,7 @@ def t_cost_edges_distance_graphs_no_vars(g1, root_g1, g2, root_g2):
     return t_cost_edges_distance(g1, g1_nodes, g2, g2_nodes)
 
 
-def t_cost_edges_distance_graphs_with_vars(m1, m2):
+def t_cost_edges_distance_graphs_with_vars(m1, m2, apply_correction=True):
     def reachable(g):
         """
         Auxiliary function to compute the reachable nodes from the
@@ -210,9 +210,15 @@ def t_cost_edges_distance_graphs_with_vars(m1, m2):
 
     s1 = reachable(m1)
     s2 = reachable(m2)
+    
+    # Adding small correction to favor solutions with more variables
+    correction = 0
+    if apply_correction:
+        correction = 0.00000001 * (len(m1.variables) + len(m2.variables))
 
     return t_cost_edges_distance(m1.graph, set(m1.subgraph.nodes).difference(s1),
-                                 m2.graph, set(m2.subgraph.nodes).difference(s2))
+                                 m2.graph, set(m2.subgraph.nodes).difference(s2))\
+            + correction
 
 
 def t_cost_edit_distance(s1, s2):
