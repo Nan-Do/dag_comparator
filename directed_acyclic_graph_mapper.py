@@ -223,12 +223,14 @@ class DirectedAcyclicGraphMapper:
         else:
             initial_nodes = set(initial_nodes)
 
+        initial_nodes.remove(starting_node)
+
         # The frontier is a tuple of 3 elements as follows:
         #  A set of nodes representing valid positions for the variables.
         #  A node that represents the father of the last processed node.
         #  A tuple representing where the variables have been set for the
         #  current configuration.
-        frontier = [(initial_nodes.difference(starting_node),
+        frontier = [(initial_nodes,
                      starting_node,
                      tuple())]
         while frontier:
@@ -237,9 +239,11 @@ class DirectedAcyclicGraphMapper:
             if len(variables) < total_number_of_variables:
                 for node in selectable:
                     # Get the nodes in which we can put a variable
+                    selectable.remove(node)
                     new_selectable = \
-                            self.__getSelectableNodes(selectable.difference(node),
+                            self.__getSelectableNodes(selectable,
                                                       node)
+                    selectable.add(node)
                     solution = variables + (node,)
                     # To store all the possible permutations and not just a
                     # canonical combination change solutions to a list and

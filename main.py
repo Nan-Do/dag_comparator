@@ -136,32 +136,32 @@ if __name__ == '__main__':
         # SMALL SIZE
         root = 'x'
         links = {
-                 'x': ['y', 'z', 'W'],
-                 'y': ['B'],
-                 'z': ['F'],
-                 'W': [],
-                 'B': [],
-                 'F': [],
+                 'x': ['y', 'z', 'Want'],
+                 'y': ['Boy'],
+                 'z': ['Football'],
+                 'Want': [],
+                 'Boy': [],
+                 'Football': [],
                  }
         link_labels = {
                'A0': set([('x', 'y')]),
                'A1': set([('x', 'z')]),
-               'I': set([('x', 'W'), ('y', 'B'), ('z', 'F')])
+               'I': set([('x', 'Want'), ('y', 'Boy'), ('z', 'Football')])
         }
         dag1 = DirectedAcyclicGraph(root, links, link_labels)
         root = 'a'
         links = {
-                 'a': ['b', 'c', 'W'],
-                 'b': ['B'],
-                 'c': ['b', 'G'],
-                 'W': [],
-                 'B': [],
-                 'G': [],
+                 'a': ['b', 'c', 'Want'],
+                 'b': ['Boy'],
+                 'c': ['b', 'Go'],
+                 'Want': [],
+                 'Boy': [],
+                 'Go': [],
                  }
         link_labels = {
                'A0': set([('a', 'b'), ('c', 'b')]),
                'A1': set([('a', 'c')]),
-               'I': set([('a', 'W'), ('b', 'B'), ('c', 'G')])
+               'I': set([('a', 'Want'), ('b', 'Boy'), ('c', 'Go')])
         }
         dag2 = DirectedAcyclicGraph(root, links, link_labels)
 
