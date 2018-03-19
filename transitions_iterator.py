@@ -86,15 +86,13 @@ class TransitionsIterator:
         It sorts the continuations decreasingly by the accumulated weight of
         the continuation nodes of the transition and its associated weight.
         """
-        computed_weights = []
-        for transition in transitions:
+        def compute_weight(transition):
             value = sum(map(lambda x: x.accumulated_weight,
                             transition.continuations))
-            computed_weights.append(value + transition.weight)
+            value += transition.weight
+            return value
 
-        sorting_list = zip(computed_weights, transitions)
-        return map(lambda x: x[1], sorted(sorting_list,
-                                          reverse=True))
+        return sorted(transitions, key=compute_weight, reverse=True)
 
     def __resetStates(self, hypergraph):
         """
