@@ -1,6 +1,11 @@
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 
+# This data type will contain the information to represent the
+# hyperedges of the hypergraph as transitions. Check the
+# function __resetStates for more information.
+TransitionData = namedtuple("TransitionData", ["continuation_nodes"])
+
 # This data type represents a continuation, that is given a path
 # which is the next node that we can take. This node has an associated
 # value in the path. The node is represented by the continuation_node
@@ -111,10 +116,7 @@ class TransitionsIterator:
         transitions = defaultdict(list)
         for hyperedge in hypergraph.hyperedges:
             continuation_nodes = hyperedge[1:]
-            weight = hypergraph.getHyperedgeLabel(hyperedge).weight
-
-            transitions[hyperedge[0]].append(Transition(continuation_nodes,
-                                                        weight))
+            transitions[hyperedge[0]].append(TransitionData(continuation_nodes))
 
         return transitions
 
@@ -155,7 +157,7 @@ class TransitionsIterator:
             transitions = [Transition((c,), 0)]
             for transition in self.node_transitions[node]:
                 next_transition = []
-                for transition_node in transition.continuations:
+                for transition_node in transition.continuation_nodes:
                     n = self.__build_transitions_cache(hypergraph,
                                                        transition_node).next()
                     best_transition = n[0]
