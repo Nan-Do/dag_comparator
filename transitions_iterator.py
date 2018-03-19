@@ -92,7 +92,7 @@ class TransitionsIterator:
             value += transition.weight
             return value
 
-        return sorted(transitions, key=compute_weight, reverse=True)
+        return transitions.sort(key=compute_weight, reverse=True)
 
     def __resetStates(self, hypergraph):
         """
@@ -171,9 +171,9 @@ class TransitionsIterator:
                                hypergraph.getHyperedgeLabel(hyperedge).weight)
                 transitions.append(t)
 
-            c = self.__sort_transitions(transitions)
-            self.transitions_cache[node] = c
-            yield c
+            self.__sort_transitions(transitions)
+            self.transitions_cache[node] = transitions
+            yield transitions
 
     # TODO: Currently it generates the best solution first and then
     # lexicografically the rest. Modify it to computed all the solutions in
