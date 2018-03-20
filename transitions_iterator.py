@@ -161,11 +161,10 @@ class TransitionsIterator:
                 transition = []
                 for continuation_node in hyperedge_transition.continuation_nodes:
                     n = self.__build_transitions_cache(hypergraph,
-                                                       continuation_node)
-                    best = n.next()[0]
+                                                       continuation_node).next()
                     accumulated_weight = sum(map(lambda x: x.accumulated_weight,
-                                                 best.continuations))
-                    accumulated_weight += best.weight
+                                                 n[0].continuations))
+                    accumulated_weight += n[0].weight
                     c = Continuation(continuation_node, accumulated_weight)
                     transition.append(c)
 
