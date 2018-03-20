@@ -4,7 +4,8 @@ from copy import deepcopy
 # This data type will contain the information to represent the
 # hyperedges of the hypergraph as transitions. Check the
 # function __resetStates for more information.
-TransitionData = namedtuple("TransitionData", ["continuation_nodes"])
+HyperedgeTransition = namedtuple("HyperedgeTransition", ["continuation_nodes"])
+
 
 # This data type represents a continuation, that is given a path
 # which is the next node that we can take. This node has an associated
@@ -113,12 +114,13 @@ class TransitionsIterator:
             {'aA': Transition(ContinuationNodes=['bB', 'cC'],
                               weight=0.5)}
         """
-        transitions = defaultdict(list)
+        hyperege_transitions = defaultdict(list)
         for hyperedge in hypergraph.hyperedges:
             continuation_nodes = hyperedge[1:]
-            transitions[hyperedge[0]].append(TransitionData(continuation_nodes))
+            hyper_trans = HyperedgeTransition(continuation_nodes)
+            hyperege_transitions[hyperedge[0]].append(hyper_trans)
 
-        return transitions
+        return hyperege_transitions
 
     def __build_transitions_cache(self, hypergraph, node):
         """
@@ -141,7 +143,7 @@ class TransitionsIterator:
         if node in self.transitions_cache:
             yield self.transitions_cache[node]
 
-        if node not in self.node_transitions:
+        if node not in self.hyperege_transitions:
             c = Continuation(None,
                              hypergraph.getNodeWeight(node))
             t = Transition((c,), 0)
@@ -155,9 +157,9 @@ class TransitionsIterator:
             c = Continuation(None,
                              hypergraph.getNodeWeight(node))
             transitions = [Transition((c,), 0)]
-            for hyper_transition in self.node_transitions[node]:
+            for hyperedge_transition in self.hyperege_transitions[node]:
                 transition = []
-                for continuation_node in hyper_transition.continuation_nodes:
+                for continuation_node in hyperedge_transition.continuation_nodes:
                     n = self.__build_transitions_cache(hypergraph,
                                                        continuation_node)
                     best = n.next()[0]
@@ -248,10 +250,10 @@ class TransitionsIterator:
                     counter -= 1
 
     def __init__(self, hypergraph, initial_node):
-        self.node_transitions = self.__resetStates(hypergraph)
+        self.hyperege_transitions = self.__resetStates(hypergraph)
         self.transitions_cache = dict()
 
-        if initial_node not in self.node_transitions:
+        if initial_node not in self.hyperege_transitions:
             raise ValueError("The specified initial node doesn't start a "
                              "hyperedge")
 
