@@ -231,7 +231,9 @@ class TransitionsIterator:
                 # The commented out lines are in case the usage of the
                 # the named tuple instead the class is preferred.
                 # continuation_node = solution[0][0][counter].continuation_node
-                total_weight = c[0][0][0].accumulated_weight + c[0][1]
+                # total_weight = c[0][0][0].accumulated_weight + c[0][1]
+                total_weight = sum(map(lambda x: x.accumulated_weight,
+                                       c[0][0])) + c[0][1]
                 # solution[0][0][counter] = Continuation(continuation_node,
                 #                                        total_weight)
                 solution[0][0][counter].accumulated_weight = total_weight
