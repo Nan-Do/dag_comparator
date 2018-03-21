@@ -91,6 +91,10 @@ class TransitionsIterator:
 
         It sorts the continuations decreasingly by the accumulated weight of
         the continuation nodes of the transition and its associated weight.
+        It uses the auxiliary function compute_weight to obtain the weight
+        of a transition. The weight of a transition is the sum of the 
+        accumulated weight of the continuation nodes and the weight associated
+        with the transition itself.
         """
         def compute_weight(transition):
             value = sum(map(lambda x: x.accumulated_weight,
@@ -105,14 +109,11 @@ class TransitionsIterator:
         This functions builds the transitions dictionary for a given hypergraph.
 
         The transitions dictionary has as keys the firt element of a hyperedge
-        and as values transition data elements. The transition data is formed
-        by a list of continuation nodes, which are the rest of the nodes that
-        form the hyperedge, and the weight associated with that hyperedge.
-        Example
-            Hyperedge ('aA', 'bB', 'cC') with a cost 0.5
+        and as values the rest of the elements.
+        Example:
+            Hyperedge ('aA', 'bB', 'cC')
             produces
-            {'aA': Transition(ContinuationNodes=['bB', 'cC'],
-                              weight=0.5)}
+            { 'aA': HyperedgeTransition(['bB', 'cC']) }
         """
         hyperege_transitions = defaultdict(list)
         for hyperedge in hypergraph.hyperedges:
